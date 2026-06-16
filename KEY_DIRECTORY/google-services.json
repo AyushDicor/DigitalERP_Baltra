@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "464538135192",
+    "project_id": "digital-erp-c1233",
+    "storage_bucket": "digital-erp-c1233.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464538135192:android:fd0a8be1f26b2fdb52beed",
+        "android_client_info": {
+          "package_name": "com.digitalerp.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "464538135192-rr0imu9blefpvgutemc61d2m0at9cnl6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEu2GVILurF0XAyZdOCagQpuLHbLuwwc4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "464538135192-rr0imu9blefpvgutemc61d2m0at9cnl6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "464538135192-qia3qfi4fdcl3mct3lnl07op1329vh4b.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.podcastBloc"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464538135192:android:781fd77481a3d3d752beed",
+        "android_client_info": {
+          "package_name": "com.dicorerp.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "464538135192-rr0imu9blefpvgutemc61d2m0at9cnl6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEu2GVILurF0XAyZdOCagQpuLHbLuwwc4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "464538135192-rr0imu9blefpvgutemc61d2m0at9cnl6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "464538135192-qia3qfi4fdcl3mct3lnl07op1329vh4b.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.podcastBloc"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

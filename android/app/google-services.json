@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "322657298985",
+    "project_id": "digitalerp-globenex",
+    "storage_bucket": "digitalerp-globenex.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:322657298985:android:0867851b011feed2770a38",
+        "android_client_info": {
+          "package_name": "com.globenex.erp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9-txTC8e838_0sY5yYj851Y_-XdPJqTM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

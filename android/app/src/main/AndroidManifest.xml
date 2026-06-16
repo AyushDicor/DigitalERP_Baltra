@@ -1,0 +1,260 @@
+<!--&lt;!&ndash;<manifest xmlns:android="http://schemas.android.com/apk/res/android"&ndash;&gt;-->
+<!--&lt;!&ndash;    xmlns:tools="http://schemas.android.com/tools">&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"&ndash;&gt;-->
+<!--&lt;!&ndash;        tools:node="remove" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.INTERNET" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.CAMERA" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />&ndash;&gt;-->
+<!--&lt;!&ndash;    &lt;!&ndash;    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" tools:node="remove"/>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove"/>&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.RECEIVE_SMS" tools:node="remove" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.READ_SMS" tools:node="remove" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.SEND_SMS" tools:node="remove" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.READ_CALL_LOG" tools:node="remove" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.WRITE_CALL_LOG" tools:node="remove" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <uses-permission android:name="android.permission.CALL_PHONE" tools:node="remove" />&ndash;&gt;-->
+
+<!--&lt;!&ndash;    <queries>&ndash;&gt;-->
+<!--&lt;!&ndash;        &lt;!&ndash; If your app opens https URLs &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;        <intent>&ndash;&gt;-->
+<!--&lt;!&ndash;            <action android:name="android.intent.action.VIEW" />&ndash;&gt;-->
+<!--&lt;!&ndash;            <data android:scheme="https" />&ndash;&gt;-->
+<!--&lt;!&ndash;        </intent>&ndash;&gt;-->
+<!--&lt;!&ndash;        <intent>&ndash;&gt;-->
+<!--&lt;!&ndash;            <action android:name="android.intent.action.VIEW" />&ndash;&gt;-->
+<!--&lt;!&ndash;            <data android:scheme="tel" />&ndash;&gt;-->
+<!--&lt;!&ndash;        </intent>&ndash;&gt;-->
+<!--&lt;!&ndash;    </queries>&ndash;&gt;-->
+<!--&lt;!&ndash;    <application&ndash;&gt;-->
+<!--&lt;!&ndash;        android:label="DigitalERP"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:name="${applicationName}"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:icon="@mipmap/ic_launcher">&ndash;&gt;-->
+<!--&lt;!&ndash;        android:usesCleartextTraffic="true">&ndash;&gt;-->
+<!--&lt;!&ndash;        <activity&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name=".MainActivity"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:exported="true"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:launchMode="singleTop"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:theme="@style/LaunchTheme"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:hardwareAccelerated="true"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:windowSoftInputMode="adjustResize">&ndash;&gt;-->
+<!--&lt;!&ndash;            &lt;!&ndash; Specifies an Android theme to apply to this Activity as soon as&ndash;&gt;-->
+<!--&lt;!&ndash;                 the Android process has started. This theme is visible to the user&ndash;&gt;-->
+<!--&lt;!&ndash;                 while the Flutter UI initializes. After that, this theme continues&ndash;&gt;-->
+<!--&lt;!&ndash;                 to determine the Window background behind the Flutter UI. &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;            <meta-data&ndash;&gt;-->
+<!--&lt;!&ndash;              android:name="io.flutter.embedding.android.NormalTheme"&ndash;&gt;-->
+<!--&lt;!&ndash;              android:resource="@style/NormalTheme"&ndash;&gt;-->
+<!--&lt;!&ndash;              />&ndash;&gt;-->
+<!--&lt;!&ndash;            <intent-filter>&ndash;&gt;-->
+<!--&lt;!&ndash;                <action android:name="android.intent.action.MAIN"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <category android:name="android.intent.category.LAUNCHER"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            </intent-filter>&ndash;&gt;-->
+<!--&lt;!&ndash;        </activity>&ndash;&gt;-->
+<!--&lt;!&ndash;        &lt;!&ndash; Don't delete the meta-data below.&ndash;&gt;-->
+<!--&lt;!&ndash;             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;        <meta-data&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name="flutterEmbedding"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:value="2" />&ndash;&gt;-->
+<!--&lt;!&ndash;        <meta-data&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name="com.google.firebase.messaging.default_notification_channel_id"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:value="digitalerp"/>&ndash;&gt;-->
+
+<!--&lt;!&ndash;        <meta-data&ndash;&gt;-->
+<!--&lt;!&ndash;            android:name="com.google.android.geo.API_KEY"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:value="AIzaSyC2coux89XLkIAQ1m_KTgOVpI8m6XO-zu0" />&ndash;&gt;-->
+<!--&lt;!&ndash;    </application>&ndash;&gt;-->
+<!--&lt;!&ndash;</manifest>&ndash;&gt;-->
+
+
+<!--<manifest xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:tools="http://schemas.android.com/tools">-->
+<!--    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"-->
+<!--        tools:node="remove" />-->
+<!--    <uses-permission android:name="android.permission.INTERNET" />-->
+<!--    <uses-permission android:name="android.permission.CAMERA" />-->
+<!--    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
+<!--    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
+<!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />-->
+<!--    <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove"/>-->
+<!--    <uses-permission android:name="android.permission.RECEIVE_SMS" tools:node="remove" />-->
+<!--    <uses-permission android:name="android.permission.READ_SMS" tools:node="remove" />-->
+<!--    <uses-permission android:name="android.permission.SEND_SMS" tools:node="remove" />-->
+<!--    <uses-permission android:name="android.permission.READ_CALL_LOG" tools:node="remove" />-->
+<!--    <uses-permission android:name="android.permission.WRITE_CALL_LOG" tools:node="remove" />-->
+<!--    <uses-permission android:name="android.permission.CALL_PHONE" tools:node="remove" />-->
+
+<!--    &lt;!&ndash; Storage permissions for file download &ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"-->
+<!--        android:maxSdkVersion="29"/>-->
+<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"-->
+<!--        android:maxSdkVersion="32"/>-->
+<!--    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"-->
+<!--        tools:ignore="ScopedStorage"/>-->
+
+<!--    <queries>-->
+<!--        <intent>-->
+<!--            <action android:name="android.intent.action.VIEW" />-->
+<!--            <data android:scheme="https" />-->
+<!--        </intent>-->
+<!--        <intent>-->
+<!--            <action android:name="android.intent.action.VIEW" />-->
+<!--            <data android:scheme="http" />-->
+<!--        </intent>-->
+<!--        <intent>-->
+<!--            <action android:name="android.intent.action.VIEW" />-->
+<!--            <data android:scheme="tel" />-->
+<!--        </intent>-->
+<!--    </queries>-->
+
+<!--    <application-->
+<!--        android:label="Globenex"-->
+<!--        android:name="${applicationName}"-->
+<!--        android:icon="@mipmap/ic_launcher"-->
+<!--        android:usesCleartextTraffic="true"-->
+<!--        android:hardwareAccelerated="true"-->
+<!--        android:requestLegacyExternalStorage="true">-->
+<!--        <activity-->
+<!--            android:name=".MainActivity"-->
+<!--            android:exported="true"-->
+<!--            android:launchMode="singleTop"-->
+<!--            android:theme="@style/LaunchTheme"-->
+<!--            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"-->
+<!--            android:hardwareAccelerated="true"-->
+<!--            android:windowSoftInputMode="adjustResize">-->
+<!--            <meta-data-->
+<!--                android:name="io.flutter.embedding.android.NormalTheme"-->
+<!--                android:resource="@style/NormalTheme"-->
+<!--                />-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN"/>-->
+<!--                <category android:name="android.intent.category.LAUNCHER"/>-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+<!--        <meta-data-->
+<!--            android:name="flutterEmbedding"-->
+<!--            android:value="2" />-->
+<!--        <meta-data-->
+<!--            android:name="com.google.firebase.messaging.default_notification_channel_id"-->
+<!--            android:value="digitalerp"/>-->
+<!--        <meta-data-->
+<!--            android:name="com.google.android.geo.API_KEY"-->
+<!--            android:value="AIzaSyC2coux89XLkIAQ1m_KTgOVpI8m6XO-zu0" />-->
+<!--    </application>-->
+<!--</manifest>-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Remove restricted/dangerous permissions pulled in by any dependency -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"
+        tools:node="remove" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_SMS"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.SEND_SMS"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.CALL_PHONE"
+        tools:node="remove" />
+
+    <!--
+        REMOVED — these caused all 3 rejections:
+        - MANAGE_EXTERNAL_STORAGE   → "All Files Access: Not a core feature"
+        - WRITE_EXTERNAL_STORAGE    → "Need to use MediaStore API"
+        - READ_EXTERNAL_STORAGE     → "Need to use MediaStore API"
+        - requestLegacyExternalStorage → legacy storage flag, triggers policy violation
+
+        REPLACEMENT STRATEGY:
+        - File picking  → use file_picker package (uses system picker, no permission needed)
+        - File saving   → use getApplicationDocumentsDirectory() (no permission needed)
+        - Media access  → READ_MEDIA_IMAGES / READ_MEDIA_VIDEO (Android 13+ scoped)
+    -->
+
+    <!-- Core permissions for GLOBENEX ERP -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <!-- Scoped media permissions for Android 13+ (API 33+) -->
+    <!-- Only include these if your app lets users pick images/videos as attachments -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+    <queries>
+        <!-- Required to open HTTPS links (e.g. attachment previews) -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <!-- Required to open phone dialer -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="tel" />
+        </intent>
+        <!-- Required to open downloaded files with external apps (PDF viewer, etc.) -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
+
+    <application
+        android:label="Globenex"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="false">
+        <!--
+            REMOVED: android:requestLegacyExternalStorage="true"
+            CHANGED: android:usesCleartextTraffic="false"
+                     All API calls should use HTTPS. If your backend is still HTTP,
+                     migrate it — or use a network_security_config.xml to allow
+                     specific domains only, rather than all cleartext traffic.
+        -->
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="digitalerp" />
+
+        <!--
+            SECURITY WARNING: Rotate this API key in Google Cloud Console immediately
+            if this file has ever been committed to a public/shared repository.
+            Restrict it to: your package name + SHA-1 signing fingerprint.
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC2coux89XLkIAQ1m_KTgOVpI8m6XO-zu0" />
+
+    </application>
+</manifest>
