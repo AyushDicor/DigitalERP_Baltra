@@ -47,15 +47,27 @@ class IssueItemSourceScreen extends StatelessWidget {
                 ]),
                 const SizedBox(height: 10),
 
-                // Issue Type
+                // // Issue Type
+                // IssSearchableDropdown<IssueItemDropdownOption>(
+                //   label: 'Issue Type',
+                //   value: ctrl.selectedIssueType,
+                //   items: ctrl.issueTypeList,
+                //   isLoading: ctrl.isLoadingIssueType,
+                //   itemLabel: (o) => o.label,
+                //   onChanged: ctrl.setIssueType,
+                //   hint: 'Select issue type…',
+                // ),
+                // const SizedBox(height: 10),
+
+                // Item Issue Type
                 IssSearchableDropdown<IssueItemDropdownOption>(
-                  label: 'Issue Type',
-                  value: ctrl.selectedIssueType,
-                  items: ctrl.issueTypeList,
-                  isLoading: ctrl.isLoadingIssueType,
+                  label: 'Item Issue Type',
+                  value: ctrl.selectedItemIssueType,
+                  items: ctrl.itemIssueTypeList,
+                  isLoading: ctrl.isLoadingItemIssueType,
                   itemLabel: (o) => o.label,
-                  onChanged: ctrl.setIssueType,
-                  hint: 'Select issue type…',
+                  onChanged: ctrl.setItemIssueType,
+                  hint: 'Select item issue type…',
                 ),
                 const SizedBox(height: 10),
 
@@ -99,17 +111,6 @@ class IssueItemSourceScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
 
-                // Item Issue Type
-                IssSearchableDropdown<IssueItemDropdownOption>(
-                  label: 'Item Issue Type',
-                  value: ctrl.selectedItemIssueType,
-                  items: ctrl.itemIssueTypeList,
-                  isLoading: ctrl.isLoadingItemIssueType,
-                  itemLabel: (o) => o.label,
-                  onChanged: ctrl.setItemIssueType,
-                  hint: 'Select item issue type…',
-                ),
-                const SizedBox(height: 10),
 
                 // Remarks
                 IssField(

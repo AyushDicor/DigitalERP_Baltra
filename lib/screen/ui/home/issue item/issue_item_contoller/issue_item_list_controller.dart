@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 
 import 'package:digitalerp/screen/base/base_controller.dart';
 import '../../home_controller.dart';
+import '../issue_item_filter/issue_item_filter_sheet.dart';
 import '../issue_item_response/issue_item_model.dart';
 
 class IssueItemListController extends AppBaseController {
@@ -19,6 +20,7 @@ class IssueItemListController extends AppBaseController {
   bool isLoadingList = false;
   List<IssueItemListItem> issueItems = [];
   String searchQuery = '';
+  IssueItemFilter activeFilter = const IssueItemFilter();
 
   // ── Date controllers ───────────────────────────────────────────────────────
   final TextEditingController fromDateCtrl = TextEditingController();
@@ -36,6 +38,16 @@ class IssueItemListController extends AppBaseController {
             i.issueType.toLowerCase().contains(q) ||
             i.godown.toLowerCase().contains(q))
         .toList();
+  }
+
+  void applyFilter(IssueItemFilter f) {
+    activeFilter = f;
+    update();
+  }
+
+  void resetFilter() {
+    activeFilter = const IssueItemFilter();
+    update();
   }
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
@@ -67,26 +79,29 @@ class IssueItemListController extends AppBaseController {
   bool _isFetching = false;
 
   Future<void> fetchIssueItemList() async {
-    if (_isFetching) return;          // ← guard
+    if (_isFetching) return; // ← guard
     _isFetching = true;
     isLoadingList = true;
-    issueItems    = [];
-    searchQuery   = '';
+    issueItems = [];
+    searchQuery = '';
     update();
     try {
       final body = {
-        'compid':   homeController.currentUserData?.compId   ?? 0,
-        'branchid': homeController.currentUserData?.branchId ?? 0,
-        'userid':   homeController.currentUserData?.userid   ?? 0,
         'fromdate': fromDateCtrl.text,
-        'todate':   toDateCtrl.text,
+        'todate': toDateCtrl.text,
+        'compid': homeController.currentUserData?.compId ?? 0,
+        'branchid': homeController.currentUserData?.branchId ?? 0,
+        'userid': homeController.currentUserData?.userid ?? 0,
+        'siteid': 0, // populate if you have a site filter
+        'partyid': 0, // populate if you have a party filter
       };
       final res = await api.getIssueItemList(body);
       if (res.status == 200 || res.success == true) {
         issueItems = res.data;
       } else {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          ShowMessage.showSnackBar('Issue Items', res.message ?? 'Failed to load');
+          ShowMessage.showSnackBar(
+              'Issue Items', res.message ?? 'Failed to load');
         });
       }
     } catch (e) {
@@ -96,7 +111,7 @@ class IssueItemListController extends AppBaseController {
       });
     } finally {
       isLoadingList = false;
-      _isFetching   = false;          // ← release guard
+      _isFetching = false; // ← release guard
       update();
     }
   }

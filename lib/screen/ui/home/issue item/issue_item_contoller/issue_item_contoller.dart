@@ -81,13 +81,15 @@ class IssueItemEntryController extends AppBaseController {
     issueDateCtrl.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
     issueNo   = _generateIssueNo();
     issuedBy  = homeController.currentUserData?.name ?? 'User';
-    _fetchAllDropdowns();
 
     final args = Get.arguments;
     if (args is IssueItemListItem) {
       isEditMode   = true;
       editIssueId  = args.id;
-      _prefillFromListItem(args);
+
+      _fetchAllDropdowns().then((_) => _prefillFromListItem(args));
+    } else {
+      _fetchAllDropdowns();
     }
   }
 
@@ -185,7 +187,7 @@ class IssueItemEntryController extends AppBaseController {
     isLoadingIssueTo = true; update();
     try {
       final res = await api.getIssueItemDropdownList(
-          _dropBody('IssueTo'));                    // adjust type string
+          _dropBody('party'));                    // adjust type string
       if (res.status == 200 || res.success == true) {
         issueToList = res.data;
       }
@@ -218,7 +220,7 @@ class IssueItemEntryController extends AppBaseController {
     isLoadingItemIssueType = true; update();
     try {
       final res = await api.getIssueItemDropdownList(
-          _dropBody('ItemIssueType'));              // adjust type string
+          _dropBody('itemissuetype'));              // adjust type string
       if (res.status == 200 || res.success == true) {
         itemIssueTypeList = res.data;
       }
@@ -510,7 +512,7 @@ class IssueItemEntryController extends AppBaseController {
         'compid':          homeController.currentUserData?.compId   ?? 0,
         'branchid':        homeController.currentUserData?.branchId ?? 0,
         'userid':          homeController.currentUserData?.userid   ?? 0,
-        'yearid':          '',             // populate from your session if available
+        'yearid':          homeController.currentUserData?.yearId?.toString() ?? '',
         'issueitems':      items,
       };
 
@@ -540,6 +542,9 @@ class IssueItemEntryController extends AppBaseController {
     (DateTime.now().millisecondsSinceEpoch % 9000 + 1000).toString();
     return 'ISS-$year-$seq';
   }
+  // String _generateIssueNo() {
+  //   return DateTime.now().millisecondsSinceEpoch.toString();
+  // }
 }
 
 // ── Mutable item line used inside the controller ───────────────────────────

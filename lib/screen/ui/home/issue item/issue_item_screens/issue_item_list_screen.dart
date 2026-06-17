@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../../utils/app_constant_new.dart';
+import '../../../../../utils/show_message.dart';
+import '../../indent/indent_widgets.dart';
 import '../issue_item_contoller/issue_item_list_controller.dart';
 import '../issue_item_entry_view.dart';
+import '../issue_item_filter/issue_item_filter_sheet.dart';
 import '../issue_item_response/issue_item_model.dart';
 
 
@@ -51,30 +55,48 @@ class IssueItemListScreen extends StatelessWidget {
         ],
       ),
       actions: [
-        // ── Date range picker ──────────────────────────────────────────
-        Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _DateChip(
-                label: ctrl.fromDateCtrl.text,
-                onTap: () => ctrl.pickFromDate(ctx),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4),
-                child: Text('–',
-                    style: TextStyle(color: newTextSecondary, fontSize: 13)),
-              ),
-              _DateChip(
-                label: ctrl.toDateCtrl.text,
-                onTap: () => ctrl.pickToDate(ctx),
-              ),
-              const SizedBox(width: 4),
-              _SearchButton(onTap: ctrl.fetchIssueItemList),
-            ],
+        IconButton(
+          icon: Icon(
+            Icons.filter_list_rounded,
+            color: indBlueColor,
+            size: 20,
+          ),
+          onPressed: () => showModalBottomSheet(
+            context: ctx,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (_) => IssueItemFilterSheet(
+              items: ctrl.issueItems,
+              activeFilter: ctrl.activeFilter,
+              onApply: ctrl.applyFilter,
+              onReset: ctrl.resetFilter,
+            ),
           ),
         ),
+        // ── Date range picker ──────────────────────────────────────────
+        // Padding(
+        //   padding: const EdgeInsets.only(right: 8),
+        //   child: Row(
+        //     mainAxisSize: MainAxisSize.min,
+        //     children: [
+        //       _DateChip(
+        //         label: ctrl.fromDateCtrl.text,
+        //         onTap: () => ctrl.pickFromDate(ctx),
+        //       ),
+        //       const Padding(
+        //         padding: EdgeInsets.symmetric(horizontal: 4),
+        //         child: Text('–',
+        //             style: TextStyle(color: newTextSecondary, fontSize: 13)),
+        //       ),
+        //       _DateChip(
+        //         label: ctrl.toDateCtrl.text,
+        //         onTap: () => ctrl.pickToDate(ctx),
+        //       ),
+        //       const SizedBox(width: 4),
+        //       _SearchButton(onTap: ctrl.fetchIssueItemList),
+        //     ],
+        //   ),
+        // ),
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(56),
@@ -178,7 +200,7 @@ class _IssueItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Get.to(() => const IssueItemEntryView(), arguments: item);
+         Get.to(() => const IssueItemEntryView(), arguments: item);
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
@@ -247,17 +269,37 @@ class _IssueItemCard extends StatelessWidget {
             const SizedBox(height: 8),
 
             // ── Totals row ───────────────────────────────────────────
+            // ── Totals row ───────────────────────────────────────────
             Row(children: [
               _statCell('Qty', item.totalQty.toStringAsFixed(2)),
               const SizedBox(width: 16),
-              _statCell('Amount',
-                  '₹${_fmt2(item.totalAmount)}'),
+              _statCell('Amount', '₹${_fmt2(item.totalAmount)}'),
               const SizedBox(width: 16),
-              _statCell('Grand Total',
-                  '₹${_fmt2(item.grandTotal)}'),
+              _statCell('Grand Total', '₹${_fmt2(item.grandTotal)}'),
               const Spacer(),
-              const Icon(Icons.chevron_right_rounded,
-                  size: 18, color: newTextSecondary),
+              if (item.printUrl.isNotEmpty)
+                GestureDetector(
+                  onTap: () => _openUrl(item.printUrl),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: purpleColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(7),
+                      border: Border.all(color: purpleColor.withValues(alpha: 0.2)),
+                    ),
+                    child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.print_outlined, size: 12, color: purpleColor),
+                      SizedBox(width: 4),
+                      Text('Print',
+                          style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: purpleColor)),
+                    ]),
+                  ),
+                ),
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right_rounded, size: 18, color: newTextSecondary),
             ]),
           ],
         ),
@@ -300,6 +342,7 @@ class _IssueItemCard extends StatelessWidget {
   String _fmt(String raw) {
     try {
       DateTime? dt = DateTime.tryParse(raw);
+      dt ??= DateFormat('dd/MM/yyyy').tryParseStrict(raw);  // ← add this
       dt ??= DateFormat('dd-MM-yyyy').tryParseStrict(raw);
       if (dt != null) return DateFormat('dd MMM yyyy').format(dt);
     } catch (_) {}
@@ -308,6 +351,11 @@ class _IssueItemCard extends StatelessWidget {
 
   String _fmt2(double v) =>
       NumberFormat('#,##,##0.00', 'en_IN').format(v);
+
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
 }
 
 // ── Type badge ────────────────────────────────────────────────────────────────

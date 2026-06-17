@@ -316,8 +316,8 @@ class ApiMethods {
  String getIssueItemDropdown     = 'indentandissuedropdown';
  String getPendingIndent         = 'pendingindent';
  String getIndentItemsForIssue   = 'indentitemdetailforissue';
- String saveIssueItem            = 'saveitemissue';
- String getIssueItemFullDetail   = 'Getitemissuelistdata';
- String getIssueItemList         = 'api/IssueItem/GetIssueItemList';
+ String saveIssueItem            = 'saveissuematerial';
+ String getIssueItemFullDetail   = 'itemissuefulldetail';
+ String getIssueItemList         = 'issuelist';
 
 }

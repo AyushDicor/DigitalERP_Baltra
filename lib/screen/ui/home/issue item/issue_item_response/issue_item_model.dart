@@ -18,6 +18,7 @@ class IssueItemListItem {
   final double totalAmount;
   final double grandTotal;
   final String status;
+  final String printUrl;
 
   const IssueItemListItem({
     required this.id,
@@ -34,24 +35,26 @@ class IssueItemListItem {
     required this.totalAmount,
     required this.grandTotal,
     required this.status,
+    required this.printUrl,
   });
 
   factory IssueItemListItem.fromJson(Map<String, dynamic> j) =>
       IssueItemListItem(
-        id:            int.tryParse(j['id']?.toString() ?? '0') ?? 0,
+        id:            (j['stockid'] as num?)?.toInt() ?? 0,
         issueNo:       (j['issueno']       ?? j['IssueNo']       ?? '').toString(),
         issueDate:     (j['issuedate']     ?? j['IssueDate']     ?? '').toString(),
         issueType:     (j['issuetype']     ?? j['IssueType']     ?? '').toString(),
-        issueTo:       (j['issueto']       ?? j['IssueTo']       ?? '').toString(),
+        issueTo:       (j['PartyName']                           ?? '').toString(),
         issuedBy:      (j['issuedby']      ?? j['IssuedBy']      ?? '').toString(),
         godown:        (j['godown']        ?? j['Godown']        ?? '').toString(),
         itemIssueType: (j['itemissuetype'] ?? j['ItemIssueType'] ?? '').toString(),
         billNo:        (j['billno']        ?? j['BillNo']        ?? '').toString(),
         remarks:       (j['remarks']       ?? j['Remarks']       ?? '').toString(),
-        totalQty:      double.tryParse(j['totalqty']?.toString()    ?? '0') ?? 0,
-        totalAmount:   double.tryParse(j['totalamount']?.toString() ?? '0') ?? 0,
-        grandTotal:    double.tryParse(j['grandtotal']?.toString()  ?? '0') ?? 0,
+        totalQty:      (j['Totalqty']   as num? ?? 0).toDouble(),
+        totalAmount:   (j['TotalAmt']   as num? ?? 0).toDouble(),
+        grandTotal:    (j['TotalAmt']   as num? ?? 0).toDouble(),
         status:        (j['status'] ?? j['Status'] ?? 'Draft').toString(),
+        printUrl:      (j['printurl'] ?? '').toString(),
       );
 }
 
@@ -74,12 +77,12 @@ class IssueDetailItem {
   });
 
   factory IssueDetailItem.fromJson(Map<String, dynamic> j) => IssueDetailItem(
-    itemId:   int.tryParse(j['itemid']?.toString()  ?? '0') ?? 0,
-    itemName: (j['itemname'] ?? j['ItemName']       ?? '').toString(),
-    qty:      double.tryParse(j['qty']?.toString()    ?? '0') ?? 0,
-    rate:     double.tryParse(j['rate']?.toString()   ?? '0') ?? 0,
-    amount:   double.tryParse(j['amount']?.toString() ?? '0') ?? 0,
-    transId:  int.tryParse(j['transid']?.toString() ?? '0') ?? 0,
+    itemId:   int.tryParse(j['itemid']?.toString()         ?? '0') ?? 0,
+    itemName:             (j['itemname'] ?? j['ItemName']  ?? '').toString(),
+    qty:      double.tryParse(j['qty']?.toString()         ?? '0') ?? 0,
+    rate:     double.tryParse(j['rate']?.toString()        ?? '0') ?? 0,
+    amount:   double.tryParse(j['amount']?.toString()      ?? '0') ?? 0,
+    transId:  int.tryParse(j['transid']?.toString()        ?? '0') ?? 0,
   );
 }
 

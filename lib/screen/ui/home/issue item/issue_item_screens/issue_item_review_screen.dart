@@ -23,7 +23,7 @@ class IssueItemReviewScreen extends StatelessWidget {
                 const IssSectionHead('Issue Summary'),
                 _row('Issue No.',     ctrl.issueNo),
                 _row('Issue Date',    ctrl.issueDateCtrl.text),
-                _row('Issue Type',    ctrl.selectedIssueType?.label ?? '—'),
+              //  _row('Issue Type',    ctrl.selectedIssueType?.label ?? '—'),
                 _row('Issue To',      ctrl.selectedIssueTo?.label   ?? '—'),
                 _row('Issued By',     ctrl.issuedBy),
                 _row('Godown',        ctrl.selectedGodown?.label    ?? '—'),
