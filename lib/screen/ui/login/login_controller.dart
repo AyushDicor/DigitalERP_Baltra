@@ -153,7 +153,7 @@ import '../../../change_company/branch_list_response.dart';
     if (mobileCtrl.text.isEmpty) {
       ShowMessage.showSnackBar(
         AppString.requiredFieldTxt.tr,
-        AppString.pleaseEnterMobileTxt.tr,
+        'Please enter your mobile or username',   // updated message
       );
       return false;
     }

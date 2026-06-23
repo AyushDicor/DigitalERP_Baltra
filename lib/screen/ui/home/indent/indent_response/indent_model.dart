@@ -142,6 +142,7 @@ class IndentDetailData {
   final String requireddate;
   final int priortyid;
   final String boqNo;
+  final String indentType;
 
   const IndentDetailData({
     required this.indentid,
@@ -167,6 +168,7 @@ class IndentDetailData {
     required this.requireddate,
     required this.priortyid,
     required this.boqNo,
+    required this.indentType,
   });
 
   factory IndentDetailData.fromJson(Map<String, dynamic> j) {
@@ -175,31 +177,30 @@ class IndentDetailData {
         .map((e) => IndentDetailItem.fromJson(e as Map<String, dynamic>))
         .toList();
     return IndentDetailData(
-      indentid: int.tryParse(j['indentid']?.toString() ?? '0') ?? 0,
-      indentno: (j['indentno'] ?? '').toString(),
-      indentdate: (j['indentdate'] ?? '').toString(),
-      requestby:
-      (j['receivedby'] ?? j['requestby'] ?? '').toString(), // ← receivedby
-      siteid: int.tryParse(j['siteid']?.toString() ?? '0') ?? 0,
-      sitename: (j['sitename'] ?? '').toString(),
-      departmentid: int.tryParse(j['departmentid']?.toString() ?? '0') ?? 0,
-      department: (j['department'] ?? '').toString(),
-      jobtypeid: int.tryParse(j['jobtypeid']?.toString() ?? '0') ?? 0,
-      jobtype: (j['jobtype'] ?? '').toString(),
-      priority: (j['priority'] ?? '').toString(),
-      remarks: (j['remarks'] ?? '').toString(),
-      siteIncharge: (j['siteincharge'] ?? '').toString(),
-      godownid: int.tryParse(j['godownid']?.toString() ?? '0') ?? 0,
-      godownname: (j['godownname'] ?? '').toString(),
-      workorderid:
-      int.tryParse(j['orderid']?.toString() ?? '0') ?? 0, // ← orderid
-      workorderno: (j['BOQNo'] ?? j['workorderno'] ?? '').toString(), // ← BOQNo
-      compid: int.tryParse(j['compid']?.toString() ?? '0') ?? 0,
-      branchid: int.tryParse(j['branchid']?.toString() ?? '0') ?? 0,
-      items: parsedItems,
+      indentid:     int.tryParse(j['indentid']?.toString() ?? '0') ?? 0,
+      indentno:     (j['indentno'] ?? '').toString(),
+      indentdate:   (j['indentdate'] ?? '').toString(),
       requireddate: (j['requireddate'] ?? '').toString(),
-      priortyid: int.tryParse(j['priortyid']?.toString() ?? '0') ?? 0,
-      boqNo: (j['BOQNo'] ?? '').toString(),
+      requestby:    (j['receivedby'] ?? j['requestby'] ?? '').toString(),
+      siteid:       int.tryParse(j['siteid']?.toString() ?? '0') ?? 0,
+      sitename:     (j['sitename'] ?? '').toString(),
+      departmentid: int.tryParse(j['departmentid']?.toString() ?? '0') ?? 0,
+      department:   (j['department'] ?? '').toString(),
+      jobtypeid:    int.tryParse(j['jobtypeid']?.toString() ?? '0') ?? 0,
+      jobtype:      (j['jobtype'] ?? '').toString(),
+      indentType:   (j['indenttype'] ?? '').toString(),
+      priority:     (j['indenttype'] ?? j['priority'] ?? '').toString(),
+      remarks:      (j['remarks'] ?? '').toString(),
+      siteIncharge: (j['siteincharge'] ?? '').toString(),
+      godownid:     int.tryParse(j['godownid']?.toString() ?? '0') ?? 0,
+      godownname:   (j['godownname'] ?? '').toString(),
+      workorderid:  int.tryParse(j['orderid']?.toString() ?? '0') ?? 0,
+      workorderno:  (j['BOQNo'] ?? j['workorderno'] ?? '').toString(),
+      compid:       int.tryParse(j['companyid']?.toString() ?? j['compid']?.toString() ?? '0') ?? 0,
+      branchid:     int.tryParse(j['reuesttoid']?.toString() ?? j['branchid']?.toString() ?? '0') ?? 0,
+      items:        parsedItems,
+      priortyid:    int.tryParse(j['priortyid']?.toString() ?? '0') ?? 0,
+      boqNo:        (j['BOQNo'] ?? '').toString(),
     );
   }
 }

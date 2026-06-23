@@ -34,6 +34,7 @@ Pass - 12345
 Globenex
 User- 7255844339
 password- admin@1234
+new password- Boss@2026
 
 
 Shree Balaji

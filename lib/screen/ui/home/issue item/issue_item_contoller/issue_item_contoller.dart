@@ -422,13 +422,20 @@ class IssueItemEntryController extends AppBaseController {
           IssueItemDropdownOption(
               id: d.godownId.toString(), label: d.godown);
     }
+    if (d.itemIssueTypeId > 0) {
+      selectedItemIssueType = itemIssueTypeList.firstWhereOrNull(
+              (o) => o.id == d.itemIssueTypeId.toString()) ??
+          IssueItemDropdownOption(
+              id: d.itemIssueTypeId.toString(), label: d.itemIssueType);
+    }
+
 
     itemLines = d.items
         .map((i) => IssueItemLine(
       itemId:   i.itemId,
       itemName: i.itemName,
-      unitId:   0,
-      unitName: '',
+      unitId:   i.unitId,    // ← was 0
+      unitName: i.unitName,  // ← was ''
       qty:      i.qty,
       rate:     i.rate,
       transId:  i.transId,

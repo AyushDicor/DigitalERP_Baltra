@@ -280,6 +280,7 @@ class IndentController extends AppBaseController {
 
   void setPriorityOption(IndentDropdownOption? v) {
     selectedPriorityOption = v;
+    if (v != null) selectedPriority = v.label; // ← keep the String in sync
     update();
   }
 
@@ -390,24 +391,24 @@ class IndentController extends AppBaseController {
 
       final items = itemLines
           .map((i) => {
-        'seqNo': 0,
-        'itemid': int.tryParse(i.itemId) ?? 0,
-        'unitid': int.tryParse(i.unitId) ?? 0,
-        'quantity': i.indentQty, // ← was 'indentqty'
-        'stockquantity': i.stockAtSite, // ← was 'stockatsite'
-        'rate': i.rate,
-        'amount': i.amount,
-        'priorityid': 0,
-        'remarks': i.remarks,
-        'DueDate': '',
-        'linenumber': '',
-        'lineitem': i.itemDescription,
-        'lineid': 0,
-        'boqQty': 0,
-        'deliveredQtyamount': i.delQty,
-        'autoid': i.transId,
-        'bomqty': 0,
-      })
+                'seqNo': 0,
+                'itemid': int.tryParse(i.itemId) ?? 0,
+                'unitid': int.tryParse(i.unitId) ?? 0,
+                'quantity': i.indentQty, // ← was 'indentqty'
+                'stockquantity': i.stockAtSite, // ← was 'stockatsite'
+                'rate': i.rate,
+                'amount': i.amount,
+                'priorityid': 0,
+                'remarks': i.remarks,
+                'DueDate': '',
+                'linenumber': '',
+                'lineitem': i.itemDescription,
+                'lineid': 0,
+                'boqQty': 0,
+                'deliveredQtyamount': i.delQty,
+                'autoid': i.transId,
+                'bomqty': 0,
+              })
           .toList();
 
       final body = {
@@ -428,7 +429,7 @@ class IndentController extends AppBaseController {
         'siteincharge': siteInchargeCtrl.text.trim(),
         'Approver': selectedApprover?.label ?? '', // ← capital A
         'ApproverId':
-        int.tryParse(selectedApprover?.id ?? '0') ?? 0, // ← capital A+I
+            int.tryParse(selectedApprover?.id ?? '0') ?? 0, // ← capital A+I
         'Agent': '',
         'entrystatus': 'Final', // ← always Final
         'remarks': remarksCtrl.text.trim(),
@@ -513,6 +514,9 @@ class IndentController extends AppBaseController {
   }
 
   Future<void> _applyDetail(IndentDetailData d) async {
+    indentNumber = d.indentno;
+    indentDisplayNoCtrl.text = d.indentno;
+
     requestByCtrl.text = d.requestby;
     siteInchargeCtrl.text = d.siteIncharge;
     remarksCtrl.text = d.remarks;
@@ -544,22 +548,32 @@ class IndentController extends AppBaseController {
 
 // Branch — reuesttoid is the branch id
     selectedBranch = branchList.firstWhereOrNull((b) =>
-    b.id == d.workorderid.toString()) // workorderid maps to reuesttoid
+            b.id == d.workorderid.toString()) // workorderid maps to reuesttoid
         ??
         branchList.firstWhereOrNull(
-                (b) => b.id == _home.currentUserData?.branchId.toString());
+            (b) => b.id == _home.currentUserData?.branchId.toString());
 
 // Priority by ID (priortyid)
 // Add priortyid to IndentDetailData first (see step 6)
+    if (d.indentType.isNotEmpty) {
+      selectedIndentType = indentTypeList.firstWhereOrNull(
+            (t) => t.label.toLowerCase() == d.indentType.toLowerCase(),
+          ) ??
+          IndentDropdownOption(id: '0', label: d.indentType);
+    }
+
     if (d.priortyid > 0) {
       selectedPriorityOption =
           priorityList.firstWhereOrNull((p) => p.id == d.priortyid.toString());
+      if (selectedPriorityOption != null) {
+        selectedPriority = selectedPriorityOption!.label; // ← ADD
+      }
     }
 
 // Customer Order / BOQ
     if (d.boqNo.isNotEmpty) {
       selectedCustomerOrder = customerOrderList
-          .firstWhereOrNull((o) => o.label == d.boqNo || o.id == d.boqNo) ??
+              .firstWhereOrNull((o) => o.label == d.boqNo || o.id == d.boqNo) ??
           IndentDropdownOption(id: d.boqNo, label: d.boqNo);
       boqNoCtrl.text = d.boqNo; // keep text ctrl in sync
     }
@@ -584,7 +598,7 @@ class IndentController extends AppBaseController {
       // Set work order AFTER list is loaded (may be empty if API returns 500)
       if (d.workorderid > 0 && workOrderList.isNotEmpty) {
         selectedWorkOrder = workOrderList
-            .firstWhereOrNull((w) => w.id == d.workorderid.toString()) ??
+                .firstWhereOrNull((w) => w.id == d.workorderid.toString()) ??
             IndentDropdownOption(
                 id: d.workorderid.toString(), label: d.workorderno);
       } else if (d.workorderid > 0) {
@@ -596,32 +610,32 @@ class IndentController extends AppBaseController {
 
     if (d.departmentid > 0) {
       selectedDepartment = departmentList
-          .firstWhereOrNull((dep) => dep.id == d.departmentid.toString()) ??
+              .firstWhereOrNull((dep) => dep.id == d.departmentid.toString()) ??
           IndentDropdownOption(
               id: d.departmentid.toString(), label: d.department);
     }
 
     if (d.jobtypeid > 0) {
       selectedJobType = jobTypeList
-          .firstWhereOrNull((j) => j.id == d.jobtypeid.toString()) ??
+              .firstWhereOrNull((j) => j.id == d.jobtypeid.toString()) ??
           IndentDropdownOption(id: d.jobtypeid.toString(), label: d.jobtype);
     }
 
     itemLines = d.items
         .map((i) => IndentItemLine(
-      itemId: i.itemid.toString(),
-      itemName: i.itemname,
-      itemCode: i.itemid.toString(),
-      unit: i.unitname,
-      unitId: i.unitid.toString(),
-      prQty: i.prqty,
-      indentQty: i.indentqty,
-      delQty: i.delqty,
-      rate: i.rate,
-      stockAtSite: i.stockatsite,
-      itemDescription: i.itemdescription,
-      transId: i.transid,
-    ))
+              itemId: i.itemid.toString(),
+              itemName: i.itemname,
+              itemCode: i.itemid.toString(),
+              unit: i.unitname,
+              unitId: i.unitid.toString(),
+              prQty: i.prqty,
+              indentQty: i.indentqty,
+              delQty: i.delqty,
+              rate: i.rate,
+              stockAtSite: i.stockatsite,
+              itemDescription: i.itemdescription,
+              transId: i.transid,
+            ))
         .toList();
 
     if (kDebugMode) print('📦 Detail applied — items: ${itemLines.length}');
@@ -635,7 +649,7 @@ class IndentController extends AppBaseController {
   // IndentDropdownOption.fromJson maps { "id": ..., "name": ... }
   // =========================================================================
   Map<String, dynamic> _ddBody(String type,
-      {int siteId = 0, int partyId = 0}) =>
+          {int siteId = 0, int partyId = 0}) =>
       {
         'type': type,
         'compid': _home.currentUserData?.compId ?? 0,
@@ -894,11 +908,18 @@ class IndentController extends AppBaseController {
 
   Future<void> fetchGodowns({int siteId = 0}) async {
     isLoadingGodown = true;
+    selectedGodown = null; // ← clear previous selection
     update();
     try {
       final res =
-      await api.getIndentDropdownList(_ddBody('Godown', siteId: siteId));
-      if (res.success == true || res.status == 200) godownList = res.data;
+          await api.getIndentDropdownList(_ddBody('Godown', siteId: siteId));
+      if (res.success == true || res.status == 200) {
+        godownList = res.data;
+        if (godownList.length == 1) {
+          // ← auto-select if only one result
+          selectedGodown = godownList.first;
+        }
+      }
     } catch (e) {
       _postSnack('Godown', e);
     } finally {
@@ -912,7 +933,7 @@ class IndentController extends AppBaseController {
     update();
     try {
       final res =
-      await api.getIndentDropdownList(_ddBody('workorder', siteId: siteId));
+          await api.getIndentDropdownList(_ddBody('workorder', siteId: siteId));
       if (res.success == true || res.status == 200) workOrderList = res.data;
     } catch (e) {
       _postSnack('Work Order', e);
@@ -950,7 +971,7 @@ class IndentController extends AppBaseController {
   String _generateIndentNumber() {
     final year = DateTime.now().year;
     final seq =
-    (DateTime.now().millisecondsSinceEpoch % 9000 + 1000).toString();
+        (DateTime.now().millisecondsSinceEpoch % 9000 + 1000).toString();
     return 'IND-$year-$seq';
   }
 
@@ -979,6 +1000,11 @@ class IndentController extends AppBaseController {
 
   // Called immediately — fills text fields from list item data
   void _prefillBasicFromListItem(IndentListItem item) {
+    final cleanNo = item.indentNo.startsWith('#')
+        ? item.indentNo.substring(1)
+        : item.indentNo;
+    indentNumber = cleanNo;
+    indentDisplayNoCtrl.text = cleanNo;
     requestByCtrl.text = item.requestBy;
     try {
       final date = DateFormat('dd-MM-yyyy').parse(item.indentDate);
