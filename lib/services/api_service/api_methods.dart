@@ -51,14 +51,14 @@ class ApiMethods {
   String brandDataList        = 'brandlistnewwithbranch/brandwithimagewithbranch';
   String brandList            = 'brandlistnew/brandwithimage';
 
-  String categoryBannerImage =
+  String categoryBannerImage  =
       'categorybannerwithbranch/categorybannerlistwithbranch';
   // String categoryBannerImage = 'categorybanner/categorybannerlist';
-  String subcategoryList = 'subcategorywithbranch/subcategorylistwithbranch';
+  String subcategoryList       = 'subcategorywithbranch/subcategorylistwithbranch';
 
   String categoryBrandDataList =
       'categorybrandwithbranch/categorylistbrandwithbranch';
-  String rackNoList = 'rackno/getrackno';
+  String rackNoList            = 'rackno/getrackno';
   String stockReconciliationReportDetails =
       'stockreconcilation/getstockreportforreconcilation';
   String stockReconciliationSubmit = 'reconcileentry/savereconcileentry';
@@ -71,8 +71,8 @@ class ApiMethods {
   String getCartDetail        = 'cartdetail/getcarddetail';
 
   ///  Add Costomer
-  String addContactsView = 'partycontactdetail/getpartycontact';
-  String addContactsDetails = 'savepartycontact/enterpartycontact';
+  String addContactsView     = 'partycontactdetail/getpartycontact';
+  String addContactsDetails  = 'savepartycontact/enterpartycontact';
   String designationDropDown = 'designationlist/desinationdropdown';
 
   /// task management
@@ -87,7 +87,7 @@ class ApiMethods {
 
   /// change company
   String companylist = 'companylist/getcompany';
-  String branchlist = 'branchlist/getbranch';
+  String branchlist  = 'branchlist/getbranch';
 
   /// DownloadDocument
   String downloadDocumentType           = 'documentnamedropdown/getdocumentname';
@@ -292,17 +292,17 @@ class ApiMethods {
 
 
   ///GRN Module
-  String getGrnDetail       = 'grnfulldetailController';
-  String getGrnList         = 'getgrnlist';
-  String saveGrnEntry       = 'savegrnentry';
-  String getGrnDropdownList = 'Getmrndropdownlist';
-  String getGrnItemDetail   = 'itemdetail';
-  String getAddress         = 'getledgeraddressandvaluepercent';
+  String getGrnDetail          = 'grnfulldetailController';
+  String getGrnList            = 'getgrnlist';
+  String saveGrnEntry          = 'savegrnentry';
+  String getGrnDropdownList    = 'Getmrndropdownlist';
+  String getGrnItemDetail      = 'itemdetail';
+  String getAddress            = 'getledgeraddressandvaluepercent';
 
   ///MRN QC Module
-  String getMrnQcList        = 'getmrnlist';
-  String getMrnQcDetail      = 'mrnandqcdetail';
-  String saveQcEntry         = 'saveqcentry';
+  String getMrnQcList          = 'getmrnlist';
+  String getMrnQcDetail        = 'mrnandqcdetail';
+  String saveQcEntry           = 'saveqcentry';
 //  static const String getPendingPoItems = 'getpendingpo';
 
   /// Indent Module
@@ -313,11 +313,11 @@ class ApiMethods {
   String getIndentItemStock    = '';
 
   ///Issue Item
- String getIssueItemDropdown     = 'indentandissuedropdown';
- String getPendingIndent         = 'pendingindent';
- String getIndentItemsForIssue   = 'indentitemdetailforissue';
- String saveIssueItem            = 'saveissuematerial';
- String getIssueItemFullDetail   = 'itemissuefulldetail';
- String getIssueItemList         = 'issuelist';
+ String getIssueItemDropdown    = 'indentandissuedropdown';
+ String getPendingIndent        = 'pendingindent';
+ String getIndentItemsForIssue  = 'indentitemdetailforissue';
+ String saveIssueItem           = 'saveissuematerial';
+ String getIssueItemFullDetail  = 'itemissuefulldetail';
+ String getIssueItemList        = 'issuelist';
 
 }

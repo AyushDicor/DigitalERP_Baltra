@@ -988,12 +988,14 @@ class ApprovalHubController extends AppBaseController {
 
       if (res.status == 200) {
         actionSuccess = true;
+
         _removeItem(currentItem!);
         _tryRefreshBadge();
 
         final actionName = isReimbursementL1
             ? 'Verified' // ← better success label for L1
             : (partialApproval ? 'Partially Approved' : pickedAction!.label);
+        actionResultMsg = '$actionName successfully';
         final docNo = currentItem!.documentNo ?? '';
 
         Get.snackbar(
