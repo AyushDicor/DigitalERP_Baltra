@@ -50,20 +50,18 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAEu2GVILurF0XAyZdOCagQpuLHbLuwwc4',
-    appId: '1:464538135192:android:fd0a8be1f26b2fdb52beed',
-    messagingSenderId: '464538135192',
-    projectId: 'digital-erp-c1233',
-    storageBucket: 'digital-erp-c1233.appspot.com',
+    apiKey: 'AIzaSyDTzML-lIA1FRzdpQsP3LZzr4p8xRSAfas',
+    appId: '1:970037723256:android:e5996265ffef4999ecad8d',
+    messagingSenderId: '970037723256',
+    projectId: 'digitalerp-baltra',
+    storageBucket: 'digitalerp-baltra.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCWpT42BdIO3h2KwmI4Ehe2gN8VZmuiRW4',
-    appId: '1:464538135192:ios:dbc59da6a0348d2452beed',
-    messagingSenderId: '464538135192',
-    projectId: 'digital-erp-c1233',
-    storageBucket: 'digital-erp-c1233.appspot.com',
-    iosClientId: '464538135192-s3vja4ee1bnrsnidb78rugmd295a1oaf.apps.googleusercontent.com',
-    iosBundleId: 'com.digitalerp.app',
+    apiKey: 'AIzaSyDCkXEf7qBwsonm9U2E_7nRGrS_vLwIFZg',
+    appId: '1:970037723256:ios:9f07a060be1be0cdecad8d',
+    messagingSenderId: '970037723256',
+    projectId: 'digitalerp-baltra',
+    storageBucket: 'digitalerp-baltra.firebasestorage.app',
+    iosBundleId: 'com.baltra.app',
   );
 }

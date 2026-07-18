@@ -235,9 +235,12 @@ class _ReimbursementListScreenState extends State<ReimbursementListScreen> {
     int approved = 0, pending = 0, rejected = 0;
     for (final e in list) {
       final s = (e.approvalStatus ?? '').toLowerCase();
-      if (s == 'approved' || s == 'approve') approved++;
-      else if (s == 'rejected' || s == 'reject') rejected++;
-      else pending++;
+      if (s == 'approved' || s == 'approve')
+        approved++;
+      else if (s == 'rejected' || s == 'reject')
+        rejected++;
+      else
+        pending++;
     }
     return GridView.count(
       crossAxisCount: 2,
@@ -401,8 +404,8 @@ class _ReimbursementListScreenState extends State<ReimbursementListScreen> {
   Widget _expenseCard(BuildContext context, ExpenseData item) {
     final rawStatus = (item.approvalStatus ?? '').trim();
     final status = rawStatus.isEmpty ? "Pending" : rawStatus;
-    final bool isEditable = !['approved', 'approve'].contains(status)
-        && (item.verifiedAmt == null || item.verifiedAmt == 0);
+    final bool isEditable = !['approved', 'approve'].contains(status) &&
+        (item.verifiedAmt == null || item.verifiedAmt == 0);
 
     Color statusBg, statusFg;
     switch (status.toLowerCase()) {
@@ -502,7 +505,8 @@ class _ReimbursementListScreenState extends State<ReimbursementListScreen> {
                       ).then((_) => _load());
                     })
                   else
-                    _actionIcon(Icons.edit_off_outlined, Colors.grey.shade400, null),
+                    _actionIcon(
+                        Icons.edit_off_outlined, Colors.grey.shade400, null),
 
                   // _actionIcon(Icons.delete_outline, Colors.redAccent, () {
                   //   //  Delete with confirmation
@@ -628,7 +632,8 @@ class _ReimbursementListScreenState extends State<ReimbursementListScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Icon(
           icon,
-          color: onPressed == null ? Colors.grey.shade300 : color, // ✅ greyed out
+          color:
+              onPressed == null ? Colors.grey.shade300 : color, // ✅ greyed out
           size: 20,
         ),
       ),

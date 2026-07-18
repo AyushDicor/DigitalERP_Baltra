@@ -3,6 +3,9 @@ import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
+    // START: FlutterFire Configuration
+    id("com.google.gms.google-services")
+    // END: FlutterFire Configuration
     id("org.jetbrains.kotlin.android")      // <-- use the Kotlin plugin id for KTS
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -24,16 +27,16 @@ val keystorePropertiesFile = rootProject.file("key.properties").also { f ->
 }
 
 android {
-    namespace = "com.globenex.erp"
+    namespace = "com.baltra.app"
     compileSdk = 36
     ndkVersion = "27.0.12077973"
 
     defaultConfig {
-        applicationId = "com.globenex.erp"
+        applicationId = "com.baltra.app"
         minSdk = flutter.minSdkVersion
         targetSdk = 36
-        versionCode = flutterVersionCode          // <-- use variables
-        versionName = flutterVersionName          // <--
+        versionCode = flutter.versionCode         // from pubspec version: x.y.z+CODE
+        versionName = flutter.versionName         // from pubspec version name
         multiDexEnabled = true
     }
 

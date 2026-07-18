@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyC-nbdMTU-44zpyRYezJeoi2-sAn7fgriE</string>
+	<string>AIzaSyDCkXEf7qBwsonm9U2E_7nRGrS_vLwIFZg</string>
 	<key>GCM_SENDER_ID</key>
-	<string>322657298985</string>
+	<string>970037723256</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.globenex.erp</string>
+	<string>com.baltra.app</string>
 	<key>PROJECT_ID</key>
-	<string>digitalerp-globenex</string>
+	<string>digitalerp-baltra</string>
 	<key>STORAGE_BUCKET</key>
-	<string>digitalerp-globenex.firebasestorage.app</string>
+	<string>digitalerp-baltra.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:322657298985:ios:4745cb3a4d89dd03770a38</string>
+	<string>1:970037723256:ios:9f07a060be1be0cdecad8d</string>
 </dict>
 </plist>

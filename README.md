@@ -30,12 +30,20 @@ pass : 123456
 User - 9376932308 
 Pass - 12345
 
+Baltra
+username - 9660388444
+password - 123456
+
+
+username - 9873079000
+password - 9873079000
+
 
 Globenex
 User- 7255844339
 password- admin@1234
 new password- Boss@2026
-
+123456
 
 Shree Balaji
 
@@ -60,7 +68,9 @@ flutter build apk --split-per-abi
 
 2)Release APK (for sharing / production)
 paste this ---------
-9981705001
+flutter clean
+flutter pub get
+flutter build apk --release
     
 3)Debug APK (for testing)
 paste this ------------

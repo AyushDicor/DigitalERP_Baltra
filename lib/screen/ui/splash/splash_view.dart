@@ -1,4 +1,5 @@
 import 'package:digitalerp/screen/ui/splash/splash_controller.dart';
+import 'package:digitalerp/utils/app_assets.dart';
 import 'package:digitalerp/utils/app_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,7 +21,7 @@ class SplashView extends StatelessWidget {
             children: [
               //  Stacked layers logo 
               Image.asset(
-                'assets/images/Globenex_Logo.jpeg',
+                AppAssets.baltraLogo,
                 width: 100,
                 height: 100,
               ),
@@ -28,7 +29,7 @@ class SplashView extends StatelessWidget {
 
 
               const Text(
-                'Globenex Projects',
+                'Baltra',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,

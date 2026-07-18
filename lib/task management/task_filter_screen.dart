@@ -360,172 +360,172 @@ class TaskFilterScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         body: SafeArea(
           child: Column(
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Get.back(),
-                      icon: const Icon(Icons.arrow_back_ios, color: newTextPrimary),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Filter',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: newTextPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Body - Scrollable filters
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
+                  child: Row(
                     children: [
-                      // Date Range
-                      _dateRow(ctrl, context),
-                      const SizedBox(height: 16),
-
-                      // Site Name (Expandable with checkboxes)
-                      _dropdownFilter(
-                        'Task Status',
-                        ['', ...ctrl.statusDropDown],   // '' = All
-                        ctrl.selectedStatus,
-                            (v) => ctrl.onChangedStatusListValue(v ?? ''),
-                        emptyLabel: 'Select Status',
+                      IconButton(
+                        onPressed: () => Get.back(),
+                        icon: const Icon(Icons.arrow_back_ios, color: newTextPrimary),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
                       ),
-                      const SizedBox(height: 12),
-
-                      //  Executive 
-                      _dropdownFilter(
-                        'Executive',
-                        ctrl.assignList.map((e) => e.executiveName ?? '').toList(),
-                        ctrl.selectAssignList?.executiveName,
-                            (v) {
-                          if (v == null || v.isEmpty) {
-                            ctrl.setSelectAssignDropdownValue(null);
-                          } else {
-                            ctrl.setSelectAssignDropdownValue(
-                              ctrl.assignList
-                                  .firstWhere((e) => e.executiveName == v),
-                            );
-                          }
-                        },
-                        emptyLabel: 'Select Executive',
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Filter',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: newTextPrimary,
+                        ),
                       ),
-                      const SizedBox(height: 12),
-
-                      //  Priority 
-                      _dropdownFilter(
-                        'Priority',
-                        ['', 'High', 'Low'],
-                        ctrl.selectedPriority,
-                            (v) {
-                          ctrl.selectedPriority = v ?? '';
-                          ctrl.update();
-                        },
-                        emptyLabel: 'Select Prioritie',
-                      ),
-                      const SizedBox(height: 12),
-
-                      //  Site Name 
-                      _dropdownFilter(
-                        'Site Name',
-                        ['', ...ctrl.taskListData
-                            .map((e) => e.sitename ?? '')
-                            .where((s) => s.isNotEmpty)
-                            .toSet()
-                            .toList()],
-                        ctrl.selectedSiteName,
-                            (v) {
-                          ctrl.selectedSiteName = v ?? '';
-                          ctrl.update();
-                        },
-                        emptyLabel: 'Select Site',
-                      ),
-                      const SizedBox(height: 12),
-
-                      //  Client Name 
-                      _dropdownFilter(
-                        'Client Name',
-                        ['', ...ctrl.taskListData
-                            .map((e) => e.clientname ?? '')
-                            .where((s) => s.isNotEmpty)
-                            .toSet()
-                            .toList()],
-                        ctrl.selectedClientName,
-                            (v) {
-                          ctrl.selectedClientName = v ?? '';
-                          ctrl.update();
-                        },
-                        emptyLabel: 'Select Client',
-                      ),
-                      const SizedBox(height: 12),
-
-                      //  Task Section 
-                      _dropdownFilter(
-                        'Task Section',
-                        ctrl.taskFilterOptions,
-                        ctrl.selectedTaskFilter,
-                            (v) => ctrl.setTaskFilter(v ?? 'All'),
-                      ),
-                      const SizedBox(height: 12),
-
-                      //  Assigned To 
-                      _dropdownFilter(
-                        'Assigned To',
-                        ['', ...ctrl.taskListData
-                            .map((e) => e.assignedto ?? '')
-                            .where((s) => s.isNotEmpty)
-                            .toSet()
-                            .toList()],
-                        ctrl.selectedAssignedTo,
-                            (v) {
-                          ctrl.selectedAssignedTo = v ?? '';
-                          ctrl.update();
-                        },
-                        emptyLabel: 'Select',
-                      ),
-                      const SizedBox(height: 24),
-                    ]),
-                ),
-              ),
-
-              // Bottom Buttons
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, -2)),
-                  ],
-                ),
-                child: Row(children: [
-                  Expanded(child: _outlineBtn('Reset', ctrl.resetFilters)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _fillBtn('Apply', () {
-                      // Date change needs re-fetch; local filters apply instantly
-                      ctrl.getTaskListView();
-                      Get.back();
-                    }),
+                    ],
                   ),
-                ]),
-              ),
-            ]),
+                ),
+
+                // Body - Scrollable filters
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Date Range
+                          _dateRow(ctrl, context),
+                          const SizedBox(height: 16),
+
+                          // Site Name (Expandable with checkboxes)
+                          _dropdownFilter(
+                            'Task Status',
+                            ['', ...ctrl.statusDropDown],   // '' = All
+                            ctrl.selectedStatus,
+                                (v) => ctrl.onChangedStatusListValue(v ?? ''),
+                            emptyLabel: 'Select Status',
+                          ),
+                          const SizedBox(height: 12),
+
+                          //  Executive
+                          _dropdownFilter(
+                            'Executive',
+                            ctrl.assignList.map((e) => e.executiveName ?? '').toList(),
+                            ctrl.selectAssignList?.executiveName,
+                                (v) {
+                              if (v == null || v.isEmpty) {
+                                ctrl.setSelectAssignDropdownValue(null);
+                              } else {
+                                ctrl.setSelectAssignDropdownValue(
+                                  ctrl.assignList
+                                      .firstWhere((e) => e.executiveName == v),
+                                );
+                              }
+                            },
+                            emptyLabel: 'Select Executive',
+                          ),
+                          const SizedBox(height: 12),
+
+                          //  Priority
+                          _dropdownFilter(
+                            'Priority',
+                            ['', 'High', 'Low'],
+                            ctrl.selectedPriority,
+                                (v) {
+                              ctrl.selectedPriority = v ?? '';
+                              ctrl.update();
+                            },
+                            emptyLabel: 'Select Prioritie',
+                          ),
+                          const SizedBox(height: 12),
+
+                          //  Site Name
+                          _dropdownFilter(
+                            'Site Name',
+                            ['', ...ctrl.taskListData
+                                .map((e) => e.sitename ?? '')
+                                .where((s) => s.isNotEmpty)
+                                .toSet()
+                                .toList()],
+                            ctrl.selectedSiteName,
+                                (v) {
+                              ctrl.selectedSiteName = v ?? '';
+                              ctrl.update();
+                            },
+                            emptyLabel: 'Select Site',
+                          ),
+                          const SizedBox(height: 12),
+
+                          //  Client Name
+                          _dropdownFilter(
+                            'Client Name',
+                            ['', ...ctrl.taskListData
+                                .map((e) => e.clientname ?? '')
+                                .where((s) => s.isNotEmpty)
+                                .toSet()
+                                .toList()],
+                            ctrl.selectedClientName,
+                                (v) {
+                              ctrl.selectedClientName = v ?? '';
+                              ctrl.update();
+                            },
+                            emptyLabel: 'Select Client',
+                          ),
+                          const SizedBox(height: 12),
+
+                          //  Task Section
+                          _dropdownFilter(
+                            'Task Section',
+                            ctrl.taskFilterOptions,
+                            ctrl.selectedTaskFilter,
+                                (v) => ctrl.setTaskFilter(v ?? 'All'),
+                          ),
+                          const SizedBox(height: 12),
+
+                          //  Assigned To
+                          _dropdownFilter(
+                            'Assigned To',
+                            ['', ...ctrl.taskListData
+                                .map((e) => e.assignedto ?? '')
+                                .where((s) => s.isNotEmpty)
+                                .toSet()
+                                .toList()],
+                            ctrl.selectedAssignedTo,
+                                (v) {
+                              ctrl.selectedAssignedTo = v ?? '';
+                              ctrl.update();
+                            },
+                            emptyLabel: 'Select',
+                          ),
+                          const SizedBox(height: 24),
+                        ]),
+                  ),
+                ),
+
+                // Bottom Buttons
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, -2)),
+                    ],
+                  ),
+                  child: Row(children: [
+                    Expanded(child: _outlineBtn('Reset', ctrl.resetFilters)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _fillBtn('Apply', () {
+                        // Date change needs re-fetch; local filters apply instantly
+                        ctrl.getTaskListView();
+                        Get.back();
+                      }),
+                    ),
+                  ]),
+                ),
+              ]),
         ),
       );
     });
@@ -609,11 +609,11 @@ class TaskFilterScreen extends StatelessWidget {
   // EXPANDABLE MULTI-SELECT (Like Site Name in image)
   // 
   Widget _expandableMultiSelectFilter(
-    String label,
-    List<String> items,
-    List<String> selectedItems,
-    ValueChanged<List<String>> onChanged,
-  ) {
+      String label,
+      List<String> items,
+      List<String> selectedItems,
+      ValueChanged<List<String>> onChanged,
+      ) {
     bool isExpanded = false;
     return StatefulBuilder(
       builder: (context, setState) {
@@ -635,7 +635,7 @@ class TaskFilterScreen extends StatelessWidget {
                 },
                 child: Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -717,7 +717,7 @@ class TaskFilterScreen extends StatelessWidget {
                                 value: isSelected,
                                 onChanged: (bool? val) {
                                   List<String> updated =
-                                      List.from(selectedItems);
+                                  List.from(selectedItems);
                                   if (val == true) {
                                     updated.add(item);
                                   } else {
@@ -733,7 +733,7 @@ class TaskFilterScreen extends StatelessWidget {
                                 contentPadding: EdgeInsets.zero,
                                 dense: true,
                                 controlAffinity:
-                                    ListTileControlAffinity.leading,
+                                ListTileControlAffinity.leading,
                               );
                             },
                           ),

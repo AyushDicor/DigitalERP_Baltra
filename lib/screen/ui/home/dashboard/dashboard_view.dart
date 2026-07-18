@@ -594,6 +594,8 @@
 import 'package:digitalerp/screen/ui/home/approval_management/approval_hub_screens/approval_hub_dashboard.dart';
 import 'package:digitalerp/screen/ui/home/dashboard/dashboard_controller.dart';
 import 'package:digitalerp/utils/app_profile_image.dart';
+import 'package:digitalerp/app_routes/app_routes.dart';
+import 'package:digitalerp/utils/app_assets.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -626,6 +628,18 @@ class DashboardView extends StatelessWidget {
                     children: [
                       _profileCard(controller),
                       const SizedBox(height: 20),
+                      // BALTRA: live overview stats from Orders + Visits list APIs.
+                      _baltraStatsRow(controller),
+                      const SizedBox(height: 24),
+                      // BALTRA: static dashboard (no dashboard API) — only Order, Visit, MIS.
+                      _sectionTitle('Quick Access'),
+                      const SizedBox(height: 12),
+                      _moduleList(),
+
+                      // Original API-driven sections (stats / revenue / visits /
+                      // attendance) hidden for Baltra — no dashboard API.
+                      // Un-comment to restore.
+                      /*
                       _statsRow(controller),
                       const SizedBox(height: 24),
                       _sectionTitle('Revenue'),
@@ -644,6 +658,7 @@ class DashboardView extends StatelessWidget {
                             : Get.put(AttendanceController()),
                       ),
                       const SizedBox(height: 20),
+                      */
                     ],
                   ),
                 ),
@@ -752,7 +767,124 @@ class DashboardView extends StatelessWidget {
     );
   }
 
-  //  Stats row 
+  //  Baltra overview stats (live counts from Orders + Visits list APIs)
+  Widget _baltraStatsRow(DashboardController controller) {
+    return Row(
+      children: [
+        Expanded(
+          child: _statCard('TOTAL ORDERS', '${controller.orderCount}',
+              Icons.shopping_bag_outlined, newBlueColor, newBlueLightColor),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _statCard('TOTAL PARTIES', '${controller.partyCount}',
+              Icons.groups_outlined, newOrangeColor, newOrangeLightColor),
+        ),
+      ],
+    );
+  }
+
+  //  Baltra modules (static — Order, Visit, MIS)
+  Widget _moduleList() {
+    final modules =
+        <({String title, String subtitle, String icon, Color color, String route})>[
+      (
+        title: 'Order',
+        subtitle: 'Create & track customer orders',
+        icon: AppAssets.ordernewIcon,
+        color: newBlueColor,
+        route: AppRoutes.orderView,
+      ),
+      (
+        title: 'Party List',
+        subtitle: 'View all parties',
+        icon: AppAssets.partylistnewIcon,
+        color: const Color(0xFF00B894),
+        route: AppRoutes.partyList,
+      ),
+    ];
+    return Column(
+      children: [
+        for (final m in modules) ...[
+          _moduleCard(
+            title: m.title,
+            subtitle: m.subtitle,
+            icon: m.icon,
+            color: m.color,
+            onTap: () => Get.toNamed(m.route),
+          ),
+          const SizedBox(height: 12),
+        ],
+      ],
+    );
+  }
+
+  Widget _moduleCard({
+    required String title,
+    required String subtitle,
+    required String icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              alignment: Alignment.center,
+              child: Image.asset(icon, width: 26, height: 26),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: newTextPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      color: newTextSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios_rounded, size: 15, color: color),
+          ],
+        ),
+      ),
+    );
+  }
+
+  //  Stats row
   Widget _statsRow(DashboardController controller) {
     return Row(
       children: [

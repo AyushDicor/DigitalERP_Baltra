@@ -76,6 +76,18 @@ class ProductListController extends AppBaseController {
     update();
   }
 
+  // Type an exact quantity (e.g. 100) instead of tapping + repeatedly.
+  void setTypedQuantity(int index, String value) {
+    final q = double.tryParse(value.trim()) ?? 0;
+    if (q <= 0) {
+      ShowMessage.showSnackBar('', 'Quantity must be greater than 0');
+      return;
+    }
+    productList[index].quantity = q;
+    // Re-add with the new quantity — same cart sync the +/- stepper uses.
+    addToCart(index);
+  }
+
   void productQtyIncreaseFromTextField(int index) {
     productList[index].quantity = double.parse(quantityTextController.text) + 1;
     quantityTextController.text = (double.parse(quantityTextController.text) + 1).toString();

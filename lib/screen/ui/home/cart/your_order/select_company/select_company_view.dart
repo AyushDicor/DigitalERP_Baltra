@@ -2,7 +2,7 @@ import 'package:digitalerp/response/get_executive_dropdown_response.dart';
 import 'package:digitalerp/screen/base/base_controller.dart';
 import 'package:digitalerp/screen/ui/home/cart/your_order/select_company/select_company_controller.dart';
 import 'package:digitalerp/utils/app_assets.dart';
-import 'package:digitalerp/utils/app_constant.dart';
+import 'package:digitalerp/utils/app_constant_new.dart';
 import 'package:digitalerp/utils/app_profile_image.dart';
 import 'package:digitalerp/utils/gradient_icon_app_button.dart';
 import 'package:digitalerp/utils/my_app_bar_new.dart';
@@ -19,82 +19,83 @@ class SelectCompanyView extends StatelessWidget {
       init: SelectCompanyController(),
       builder: (controller) => Scaffold(
         resizeToAvoidBottomInset: false,
-        body: Center(
-          child: Stack(
-            children: [
-              Positioned(
-                top: 0,
-                bottom: 0,
-                right: 0,
-                left: 0,
-                child: Container(
-                  decoration: const BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage(AppAssets.dashboardBg),
-                          fit: BoxFit.fill)),
-                  child: SafeArea(
-                      child: MyAppBar(
-                          title: 'Select Customer',
-                          onBackTap: () => controller.backTap())),
+        // FAB now lives in its proper Scaffold slot instead of a Positioned
+        // widget inside the Stack, so it can never be pushed around or
+        // overlapped by list content.
+        floatingActionButton: GradientIconButton(
+          onPressed: () => controller.tapOnAdd(),
+          radius: 15,
+          vPadding: 20,
+        ),
+        body: Container(
+          decoration: const BoxDecoration(
+            // image: DecorationImage(
+            //   image: AssetImage(AppAssets.dashboardBg),
+            //   fit: BoxFit.fill,
+            // ),
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
+                // --- Fixed header: takes only the height it actually needs,
+                // no more guessing with Get.height * 0.135 ---
+                MyAppBar(
+                  title: 'Select Customer',
+                  onBackTap: () => controller.backTap(),
                 ),
-              ),
-              Positioned(
-                right: 0,
-                left: 0,
-                bottom: 0,
-                top: Get.height * 0.135,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: Get.height * 0.02),
-                      if (controller.isManager) _dropdown(controller),
-                      if (controller.isManager) const SizedBox(height: 20),
-                      TextFormField(
-                        decoration:
-                            const InputDecoration().searchTxtFieldStyle(),
-                        controller: controller.searchController,
-                        focusNode: controller.searchFocus,
-                        keyboardType: TextInputType.text,
-                        textInputAction: TextInputAction.search,
-                        onChanged: (value) => controller.searchCompany(value),
-                      ),
-                      controller.isListLoading
-                          ? Padding(
-                              padding: EdgeInsets.only(top: Get.height * 0.28),
-                              child: const Center(
-                                  child: CircularProgressIndicator()))
-                          : controller.companyList.isNotEmpty
-                              ? ListView.builder(
-                                  shrinkWrap: true,
-                                  padding: EdgeInsets.zero,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: controller.companyList.length,
-                                  itemBuilder: (context, index) {
-                                    return companyCard(controller, index);
-                                  },
-                                )
-                              : SizedBox(
-                                  height: Get.height * .2,
-                                  child: centerText(
-                                    'Party list Not Available',
-                                  ),
-                                ),
-                      const SizedBox(height: 50),
-                    ],
+
+                // --- Scrollable body: Expanded guarantees this can never
+                // grow into / overlap the header above it ---
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: Get.height * 0.02),
+                        if (controller.isManager) _dropdown(controller),
+                        if (controller.isManager) const SizedBox(height: 20),
+                        TextFormField(
+                          decoration:
+                          const InputDecoration().searchTxtFieldStyle(),
+                          controller: controller.searchController,
+                          focusNode: controller.searchFocus,
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.search,
+                          onChanged: (value) =>
+                              controller.searchCompany(value),
+                        ),
+                        controller.isListLoading
+                            ? Padding(
+                          padding:
+                          EdgeInsets.only(top: Get.height * 0.28),
+                          child: const Center(
+                              child: CircularProgressIndicator()),
+                        )
+                            : controller.companyList.isNotEmpty
+                            ? ListView.builder(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          physics:
+                          const NeverScrollableScrollPhysics(),
+                          itemCount: controller.companyList.length,
+                          itemBuilder: (context, index) {
+                            return companyCard(controller, index);
+                          },
+                        )
+                            : SizedBox(
+                          height: Get.height * .2,
+                          child: centerText(
+                            'Party list Not Available',
+                          ),
+                        ),
+                        const SizedBox(height: 50),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                right: 18,
-                bottom: 35,
-                child: GradientIconButton(
-                    onPressed: () => controller.tapOnAdd(),
-                    radius: 15,
-                    vPadding: 20),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -104,77 +105,74 @@ class SelectCompanyView extends StatelessWidget {
   Widget companyCard(SelectCompanyController controller, int index) {
     var item = controller.companyList[index];
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      constraints: const BoxConstraints(maxHeight: 160),
-      child: InkWell(
-        onTap: () => controller.tapOnCard(index),
-        child: Stack(
-          alignment: Alignment.topLeft,
-          fit: StackFit.loose,
-          children: [
-            Positioned(
-              left: 0,
-              top: 35,
-              right: 0,
-              child: Container(
-                // height: 100,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  gradient: const LinearGradient(
-                      colors: /*item.isPending ? [orangeColor, orangeColor] :*/ grad1,
-                      stops: [0, 0.35],
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter),
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => controller.tapOnCard(index),
+          borderRadius: BorderRadius.circular(18),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
                 ),
-                // margin: const EdgeInsets.only(top: 20),
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: Get.width,
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(10),
-                          bottom: Radius.circular(25),
-                        ),
-                        color: Colors.white,
-                      ),
-                      padding:
-                          const EdgeInsets.only(left: 25, bottom: 10, top: 45),
-                      alignment: Alignment.bottomLeft,
-                      child: Text(
-                        item.partyname ?? '',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle().bold.copyWith(fontSize: 14),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      /*item.isPending ? 'Pending' : */
-                      'Select',
-                      style: const TextStyle()
-                          .bold
-                          .copyWith(color: whiteColor, fontSize: 14),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    )
-                  ],
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: purpleColor,
+                  ),
+                  child: const ProfileImageView(
+                    size: 56,
+                    imageUrl: dummyImageUrlTxt,
+                    borderSize: 2,
+                  ),
                 ),
-              ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    item.partyname ?? '',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle().bold.copyWith(fontSize: 15),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                   color:purpleColor,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Select',
+                        style: const TextStyle()
+                            .bold
+                            .copyWith(color: whiteColor, fontSize: 13),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.arrow_forward_rounded,
+                          size: 14, color: whiteColor),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const Positioned(
-              top: 0,
-              left: 20,
-              child: ProfileImageView(
-                size: 65,
-                imageUrl: dummyImageUrlTxt,
-                borderSize: 2,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -62,6 +62,12 @@ class ProductDetailsController extends AppBaseController {
       var res = await api.productDetail(body);
       if (res.status == 200) {
         productDetailsResponse = res.data?[0];
+        // Default the order quantity to 1 and seed the typeable field.
+        if ((productDetailsResponse?.quantity ?? 0) <= 0) {
+          productDetailsResponse?.quantity = 1;
+        }
+        quantityTextController.text =
+            (productDetailsResponse?.quantity?.toInt() ?? 1).toString();
         checkItemInCart();
         getUnits();
       } else {

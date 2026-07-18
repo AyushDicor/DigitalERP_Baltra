@@ -179,17 +179,24 @@
         - Media access  → READ_MEDIA_IMAGES / READ_MEDIA_VIDEO (Android 13+ scoped)
     -->
 
-    <!-- Core permissions for GLOBENEX ERP -->
+    <!-- Core permissions for BALTRA ERP -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-    <!-- Scoped media permissions for Android 13+ (API 33+) -->
-    <!-- Only include these if your app lets users pick images/videos as attachments -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <!-- BALTRA: Google Play "Photo and Video Permissions" policy compliance.
+         The app only needs occasional image attachments (orders / reimbursements),
+         which use the Android Photo Picker (image_picker on Android 13+) and need
+         NO media permission. We strip these so Play stops flagging them, even if a
+         dependency (image_picker / file_picker) tries to merge them back in. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"
+        tools:node="remove" />
 
     <queries>
         <!-- Required to open HTTPS links (e.g. attachment previews) -->
@@ -210,7 +217,7 @@
     </queries>
 
     <application
-        android:label="Globenex"
+        android:label="Baltra"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:hardwareAccelerated="true"

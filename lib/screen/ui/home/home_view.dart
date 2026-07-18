@@ -488,6 +488,8 @@ class HomeView extends StatelessWidget {
       ),
     ];
 
+    // BALTRA: Attendance module hidden (not part of this app). Un-comment to restore.
+    /*
     if (controller.isCustomer != true) {
       tabs.add(_NavItem(
         icon: Icons.date_range_outlined,
@@ -496,6 +498,7 @@ class HomeView extends StatelessWidget {
         page: AttendanceView(),
       ));
     }
+    */
 
     for (final entry in _menuNavMap.entries) {
       if (menuIds.contains(entry.key)) {

@@ -444,6 +444,7 @@ import 'package:digitalerp/screen/ui/home/order/select_category/product_list/pro
 import 'package:digitalerp/utils/app_constant_new.dart';
 import 'package:digitalerp/utils/app_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../../../../../utils/all_screens_dialog_box/product_list_filter/product_list_filter_view.dart';
 
@@ -898,6 +899,48 @@ class ProductListView extends StatelessWidget {
   }
 
   //  Qty row 
+  //  Tap the quantity to type an exact value (e.g. 100) instead of tapping +
+  void _editQtyDialog(ProductListController ctrl, int index) {
+    final item = ctrl.productList[index];
+    final qtyCtrl =
+        TextEditingController(text: '${item.quantity?.toInt() ?? 1}');
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          item.itemname ?? 'Enter quantity',
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
+        content: TextField(
+          controller: qtyCtrl,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration: const InputDecoration(
+            labelText: 'Quantity',
+            hintText: 'e.g. 100',
+          ),
+          onSubmitted: (v) {
+            Get.back();
+            ctrl.setTypedQuantity(index, v);
+          },
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              ctrl.setTypedQuantity(index, qtyCtrl.text);
+            },
+            child: const Text('Set'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _qtyRow(ProductListController ctrl, int index) {
     final item = ctrl.productList[index];
     if (!(item.isInCart ?? false)) {
@@ -924,13 +967,17 @@ class ProductListView extends StatelessWidget {
             else
               ctrl.removeFromCart(index);
           }),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Text('${item.quantity?.toInt() ?? 1}',
-                style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: newBlueColor)),
+          GestureDetector(
+            onTap: () => _editQtyDialog(ctrl, index),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              child: Text('${item.quantity?.toInt() ?? 1}',
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: newBlueColor,
+                      decoration: TextDecoration.underline)),
+            ),
           ),
           _qtyBtn(Icons.add, () => ctrl.productQtyIncrease(index),
               filled: true),

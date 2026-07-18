@@ -37,6 +37,10 @@ class DashboardController extends AppBaseController {
   List<DashboardDetailsData>? dashboardDetailsData = [];
   List<ExecutiveDropdownData>? dropdownList = [];
 
+  // Baltra dashboard: live counts from the Orders + Party List APIs.
+  int orderCount = 0;
+  int partyCount = 0;
+
   ///for saving offline cart list from calling cartlistApi
   List offlineCartList = [];
   List<GetCartListData> onlineCartList = [];
@@ -64,7 +68,57 @@ class DashboardController extends AppBaseController {
     }
 
     getCartList();
+    fetchBaltraCounts();
     super.onInit();
+  }
+
+  // Baltra: live Order + Visit counts for the static dashboard.
+  String _ymd(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  Future<void> fetchBaltraCounts() async {
+    final now = DateTime.now();
+    final monthStart = _ymd(DateTime(now.year, now.month, 1));
+
+    // Orders — same request the Orders module uses.
+    try {
+      final body = <String, String>{
+        RequestKeys.compId:
+            homeController.currentUserData?.compId.toString() ?? '',
+        RequestKeys.userId:
+            homeController.currentUserData?.userid.toString() ?? '',
+        RequestKeys.fromDate: monthStart,
+        RequestKeys.toDate: _ymd(now),
+        RequestKeys.partyId: '0',
+        RequestKeys.Executiveid: '0',
+        RequestKeys.status: 'Pending',
+        RequestKeys.branchId:
+            homeController.currentUserData?.branchId.toString() ?? '',
+      };
+      final res = await api.getExecutiveOrderList(body);
+      if (res.status == 200) {
+        orderCount = (res.data ?? []).length;
+      }
+    } catch (_) {}
+
+    // Parties — same request the Party List module uses.
+    try {
+      final body = <String, String>{
+        RequestKeys.userId:
+            homeController.currentUserData?.userid.toString() ?? '',
+        RequestKeys.compId:
+            homeController.currentUserData?.compId.toString() ?? '',
+        RequestKeys.executiveId: '0',
+        RequestKeys.branchId:
+            homeController.currentUserData?.branchId.toString() ?? '',
+      };
+      final res = await api.getPartyWithBranch(body);
+      if (res.status == 200) {
+        partyCount = (res.data ?? []).length;
+      }
+    } catch (_) {}
+
+    update();
   }
 
   Future<void> getDashboardDetails(String executiveId) async {

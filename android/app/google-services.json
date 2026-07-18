@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "322657298985",
-    "project_id": "digitalerp-globenex",
-    "storage_bucket": "digitalerp-globenex.firebasestorage.app"
+    "project_number": "970037723256",
+    "project_id": "digitalerp-baltra",
+    "storage_bucket": "digitalerp-baltra.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:322657298985:android:0867851b011feed2770a38",
+        "mobilesdk_app_id": "1:970037723256:android:e5996265ffef4999ecad8d",
         "android_client_info": {
-          "package_name": "com.globenex.erp"
+          "package_name": "com.baltra.app"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA9-txTC8e838_0sY5yYj851Y_-XdPJqTM"
+          "current_key": "AIzaSyDTzML-lIA1FRzdpQsP3LZzr4p8xRSAfas"
         }
       ],
       "services": {

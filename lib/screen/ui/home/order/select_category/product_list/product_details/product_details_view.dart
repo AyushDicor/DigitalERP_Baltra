@@ -1090,10 +1090,11 @@ import 'package:digitalerp/response/related_product_response.dart';
 import 'package:digitalerp/response/unit_list_response.dart';
 import 'package:digitalerp/screen/base/base_controller.dart';
 import 'package:digitalerp/screen/ui/home/order/select_category/product_list/product_details/product_details_controller.dart';
-import 'package:digitalerp/utils/app_constant.dart';
+import 'package:digitalerp/utils/app_constant_new.dart';
 import 'package:digitalerp/utils/app_network_image.dart';
-import 'package:digitalerp/utils/my_app_bar.dart';
+import 'package:digitalerp/utils/my_app_bar_new.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class ProductDetailsView extends StatelessWidget {
@@ -1230,7 +1231,7 @@ class ProductDetailsView extends StatelessWidget {
   Widget _stockRow(ProductDetailsController ctrl) {
     final qty = ctrl.productDetailsResponse?.quantity?.toInt() ?? 0;
     return Row(children: [
-      const Text('In Stock : ', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: newTextPrimary)),
+      const Text('Quantity : ', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: newTextPrimary)),
       Text('$qty unit', style: const TextStyle(fontSize: 13, color: newGreenColor, fontWeight: FontWeight.w700)),
     ]);
   }
@@ -1360,21 +1361,95 @@ class ProductDetailsView extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          width: double.infinity, height: 52,
-          child: ElevatedButton.icon(
-            onPressed: () => ctrl.addItem(),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: newBlueColor,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        child: Row(
+          children: [
+            _qtySelector(ctrl),
+            const SizedBox(width: 12),
+            Expanded(
+              child: SizedBox(
+                height: 52,
+                child: ElevatedButton.icon(
+                  onPressed: () => ctrl.addItem(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: newBlueColor,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                  ),
+                  icon: const Icon(Icons.shopping_cart_outlined, size: 20),
+                  label: const Text('Add to Cart',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                ),
+              ),
             ),
-            icon: const Icon(Icons.shopping_cart_outlined, size: 20),
-            label: const Text('Add to Cart',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-          ),
+          ],
         ),
+      ),
+    );
+  }
+
+  //  Quantity selector: − [ type here ] +  (type an exact value like 100)
+  Widget _qtySelector(ProductDetailsController ctrl) {
+    return Container(
+      height: 52,
+      decoration: BoxDecoration(
+        border: Border.all(color: newBorderColor),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _sheetQtyBtn(Icons.remove, () {
+            if (ctrl.quantityTextController.text.trim().isEmpty) {
+              ctrl.quantityTextController.text = '1';
+            }
+            final q =
+                int.tryParse(ctrl.quantityTextController.text.trim()) ?? 1;
+            if (q > 1) ctrl.productQtyDecreaseFromTextField();
+          }),
+          SizedBox(
+            width: 46,
+            child: TextField(
+              controller: ctrl.quantityTextController,
+              focusNode: ctrl.quantityTextFocus,
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: const InputDecoration(
+                isCollapsed: true,
+                border: InputBorder.none,
+                hintText: '1',
+              ),
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: newTextPrimary),
+              onChanged: (v) {
+                if (v.trim().isNotEmpty) ctrl.onChangeQuantityText(v.trim());
+              },
+            ),
+          ),
+          _sheetQtyBtn(Icons.add, () {
+            if (ctrl.quantityTextController.text.trim().isEmpty) {
+              ctrl.quantityTextController.text = '0';
+            }
+            ctrl.productQtyIncreaseFromTextField();
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _sheetQtyBtn(IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: 40,
+        height: 52,
+        alignment: Alignment.center,
+        child: Icon(icon, size: 20, color: newBlueColor),
       ),
     );
   }

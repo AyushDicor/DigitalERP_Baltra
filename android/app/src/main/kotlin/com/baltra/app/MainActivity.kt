@@ -1,4 +1,4 @@
-package com.globenex.erp
+package com.baltra.app
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -10,9 +10,3 @@ class MainActivity: FlutterActivity() {
         flutterEngine.plugins.add(WebViewFlutterPlugin())
     }
 }
-
-//package com.example.digitalerp
-//
-//import io.flutter.embedding.android.FlutterActivity
-//
-//class MainActivity: FlutterActivity()
