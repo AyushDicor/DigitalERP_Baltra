@@ -309,7 +309,7 @@ class DrawerView extends StatelessWidget {
                             color: lightGreyColor,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text('Digital ERP  ·  v2.4.1',
+                          child: const Text('Baltra  ·  v1.0.0',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 10,
