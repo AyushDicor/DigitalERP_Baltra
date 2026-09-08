@@ -10,7 +10,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 class ForgotPassOtpController extends AppBaseController {
-  final ForgotPasswordController forgotPasswordController = Get.find<ForgotPasswordController>();
+  /// Resolved on use, not in the field initializer: this controller is rebuilt
+  /// every time the keyboard changes the view insets, and a lookup that throws
+  /// there takes the whole screen down with it.
+  ForgotPasswordController get forgotPasswordController =>
+      Get.find<ForgotPasswordController>();
+
   int secondsRemaining = 59;
   bool enableResend = false;
   Timer? timer;
@@ -45,7 +50,12 @@ class ForgotPassOtpController extends AppBaseController {
       var res = await api.forgotOtpVerifyAPI(body);
       if (res.status == 200) {
         responseData = res.data?.userid.toString();
-        Get.offAndToNamed(AppRoutes.resetPassword);
+        // Hand the id over explicitly - this route is removed here, so the
+        // reset screen cannot read it back off this controller.
+        Get.offAndToNamed(
+          AppRoutes.resetPassword,
+          arguments: {'userId': responseData},
+        );
       } else {
         ShowMessage.showSnackBar('Failed Server Res', res.message.toString());
       }

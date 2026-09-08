@@ -200,7 +200,11 @@ class ForgotPassOtpView extends StatelessWidget {
     final safeBottom = MediaQuery.of(context).viewPadding.bottom;
 
     return GetBuilder<ForgotPassOtpController>(
-      init: ForgotPassOtpController(),
+      // build() depends on MediaQuery, so it re-runs every time the keyboard
+      // opens; only build a controller when there isn't one already.
+      init: Get.isRegistered<ForgotPassOtpController>()
+          ? null
+          : ForgotPassOtpController(),
       builder: (controller) => AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,
         child: Scaffold(

@@ -8,12 +8,28 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 class ResetPasswordController extends AppBaseController {
-  final ForgotPassOtpController forgotPassOtpController = Get.find<ForgotPassOtpController>();
   final TextEditingController confirmPasswordCtrl = TextEditingController();
   final TextEditingController passwordCtrl = TextEditingController();
   final FocusNode passwordFocus = FocusNode();
   final FocusNode confirmPasswordFocus = FocusNode();
   bool isShowPassword = true;
+
+  /// Captured once when the screen opens. The OTP screen is dropped from the
+  /// stack by [Get.offAndToNamed], so [ForgotPassOtpController] is already
+  /// deleted by the time the keyboard first opens - looking it up from a field
+  /// initializer blew up the rebuild and left a blank screen in release.
+  String? userId;
+
+  @override
+  void onInit() {
+    super.onInit();
+    final args = Get.arguments;
+    if (args is Map && args['userId'] != null) {
+      userId = args['userId'].toString();
+    } else if (Get.isRegistered<ForgotPassOtpController>()) {
+      userId = Get.find<ForgotPassOtpController>().responseData;
+    }
+  }
 
   Future<void> clickOResetPassword() async {
     passwordFocus.unfocus();
@@ -22,7 +38,7 @@ class ResetPasswordController extends AppBaseController {
     try {
       if (_isValidate()) {
         Map<String, String> body = {};
-        body[RequestKeys.userId] = forgotPassOtpController.responseData.toString();
+        body[RequestKeys.userId] = userId ?? '';
         body[RequestKeys.newPassword] = confirmPasswordCtrl.text.trim();
         var res = await api.resetPassword(body);
         if (res.status == 200) {
@@ -45,6 +61,13 @@ class ResetPasswordController extends AppBaseController {
   }
 
   bool _isValidate() {
+    if (userId == null || userId!.isEmpty) {
+      ShowMessage.showSnackBar(
+        'Session Expired',
+        'Please verify your mobile number again.',
+      );
+      return false;
+    }
     if (passwordCtrl.text.isEmpty) {
       ShowMessage.showSnackBar(
         AppString.requiredFieldTxt.tr,

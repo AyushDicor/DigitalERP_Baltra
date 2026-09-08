@@ -223,7 +223,11 @@ class ForgotPasswordView extends StatelessWidget {
     final safeBottom = MediaQuery.of(context).viewPadding.bottom;
 
     return GetBuilder<ForgotPasswordController>(
-      init: ForgotPasswordController(),
+      // build() depends on MediaQuery, so it re-runs every time the keyboard
+      // opens; only build a controller when there isn't one already.
+      init: Get.isRegistered<ForgotPasswordController>()
+          ? null
+          : ForgotPasswordController(),
       builder: (controller) => AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,
         child: Scaffold(

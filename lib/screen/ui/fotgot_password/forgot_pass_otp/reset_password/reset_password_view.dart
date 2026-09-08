@@ -184,7 +184,11 @@ class ResetPasswordView extends StatelessWidget {
     final safeBottom = MediaQuery.of(context).viewPadding.bottom;
 
     return GetBuilder<ResetPasswordController>(
-      init: ResetPasswordController(),
+      // build() depends on MediaQuery, so it re-runs every time the keyboard
+      // opens; only build a controller when there isn't one already.
+      init: Get.isRegistered<ResetPasswordController>()
+          ? null
+          : ResetPasswordController(),
       builder: (controller) => AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,
         child: Scaffold(
