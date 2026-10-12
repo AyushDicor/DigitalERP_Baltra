@@ -446,6 +446,7 @@ import 'package:digitalerp/utils/app_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import '../../../../../../utils/all_screens_dialog_box/product_list_filter/product_list_filter_view.dart';
 
 class ProductListView extends StatelessWidget {
@@ -465,7 +466,8 @@ class ProductListView extends StatelessWidget {
               const SizedBox(height: 10),
               _searchBar(ctrl),
               const SizedBox(height: 10),
-              _categoryTabs(ctrl),
+              // One dropdown with every sub-group of the brand (+ All).
+              _subGroupDropdown(ctrl),
               const SizedBox(height: 10),
               _listHeader(ctrl),
               const SizedBox(height: 8),
@@ -599,46 +601,56 @@ class ProductListView extends StatelessWidget {
     );
   }
 
-  //  Category tabs 
-  Widget _categoryTabs(ProductListController ctrl) {
-    return SizedBox(
-      height: 40,
-      child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        scrollDirection: Axis.horizontal,
-        children: [
-          _catTab(
-              'All', ctrl.selectedIndex == -1, () => ctrl.setSelectedIndex(-1)),
-          ...List.generate(
-            ctrl.subCategoryList.length,
-            (i) => _catTab(
-              ctrl.subCategoryList[i].subcategoryname ?? '',
-              ctrl.selectedIndex == i,
-              () => ctrl.setSelectedIndex(i),
-            ),
+  //  Sub-group dropdown (replaces the category + sub-category chip rows)
+  Widget _subGroupDropdown(ProductListController ctrl) {
+    // Value is the index into subCategoryList; -1 = All.
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<int>(
+          buttonHeight: 48,
+          buttonPadding: const EdgeInsets.symmetric(horizontal: 14),
+          buttonDecoration: BoxDecoration(
+            color: newSurfaceColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: newBorderColor),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _catTab(String label, bool active, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: active ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: active ? newBlueColor : newBorderColor),
+          dropdownDecoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: newBorderColor),
+          ),
+          dropdownMaxHeight: 320,
+          isExpanded: true,
+          value: ctrl.selectedIndex,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded,
+              color: newTextSecondary, size: 22),
+          hint: const Text('All Sub Groups',
+              style: TextStyle(fontSize: 14, color: newTextHint)),
+          items: [
+            const DropdownMenuItem<int>(
+              value: -1,
+              child: Text('All Sub Groups',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: newTextPrimary)),
+            ),
+            ...List.generate(
+              ctrl.subCategoryList.length,
+              (i) => DropdownMenuItem<int>(
+                value: i,
+                child: Text(
+                  ctrl.subCategoryList[i].subcategoryname ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 14, color: newTextPrimary),
+                ),
+              ),
+            ),
+          ],
+          onChanged: (value) => ctrl.setSelectedIndex(value ?? -1),
         ),
-        alignment: Alignment.center,
-        child: Text(label,
-            style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: active ? newBlueColor : newTextSecondary)),
       ),
     );
   }
@@ -650,11 +662,31 @@ class ProductListView extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('All Products',
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: newTextPrimary)),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Flexible(
+                  child: Text(ctrl.selectedCategoryName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: newTextPrimary)),
+                ),
+                if (!ctrl.isListLoading) ...[
+                  const SizedBox(width: 6),
+                  Text('${ctrl.productList.length} items',
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: newTextSecondary)),
+                ],
+              ],
+            ),
+          ),
           GestureDetector(
             onTap: ctrl.tapOnListViewType,
             child: Container(

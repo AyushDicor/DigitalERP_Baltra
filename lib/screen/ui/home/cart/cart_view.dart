@@ -492,32 +492,66 @@ class CartView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<CartController>(
       init: CartController(),
+      // GetBuilder calls this before registering `init`, so a controller is
+      // only found here when another CartView is already open underneath
+      // (e.g. cart icon on the product list during "Add more items"). That
+      // view's controller is reused and onInit won't run, so reload it.
+      initState: (_) {
+        if (Get.isRegistered<CartController>()) {
+          Get.find<CartController>().reload();
+        }
+      },
       builder: (controller) => Scaffold(
         backgroundColor: const Color(0xFFF5F6FA),
         body: SafeArea(
           child: Column(
             children: [
-              //  App Bar 
-              _AppBar(),
+              //  App Bar
+              _AppBar(controller: controller),
 
-              //  Cart list or empty state 
+              //  Editing-an-order banner
+              if (controller.isEditing) _EditBanner(controller: controller),
+
+              //  Cart list or empty state
               Expanded(
                 child: controller.cartList.isEmpty
-                    ? const Center(
-                  child: Text(
-                    'No Item in Cart',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Color(0xFF888888),
-                      fontWeight: FontWeight.w500,
-                    ),
+                    ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        controller.isBusy ? '' : 'No Item in Cart',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF888888),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      // An order needs at least one item to be saved.
+                      if (controller.isEditing && !controller.isBusy) ...[
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Add at least one item to update the order.',
+                          style: TextStyle(
+                              fontSize: 13, color: Color(0xFF888888)),
+                        ),
+                        const SizedBox(height: 16),
+                        _AddMoreButton(controller: controller),
+                      ],
+                    ],
                   ),
                 )
                     : ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                  itemCount: controller.cartList.length,
+                  itemCount: controller.cartList.length +
+                      (controller.isEditing ? 1 : 0),
                   itemBuilder: (context, index) =>
-                      _CartCard(controller: controller, index: index),
+                      index == controller.cartList.length
+                          ? Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _AddMoreButton(controller: controller),
+                            )
+                          : _CartCard(controller: controller, index: index),
                 ),
               ),
 
@@ -536,6 +570,10 @@ class CartView extends StatelessWidget {
 // App Bar
 // 
 class _AppBar extends StatelessWidget {
+  final CartController controller;
+
+  const _AppBar({required this.controller});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -548,15 +586,107 @@ class _AppBar extends StatelessWidget {
                 size: 20, color: Color(0xFF1A1A2E)),
             onPressed: () => Get.back(),
           ),
-          const Text(
-            'Cart',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1A1A2E),
+          Expanded(
+            child: Text(
+              controller.isEditing ? 'Edit Order' : 'Cart',
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1A1A2E),
+              ),
+            ),
+          ),
+          if (controller.isEditing)
+            TextButton(
+              onPressed:
+                  controller.isBusy ? null : controller.tapOnDiscardEdit,
+              child: const Text(
+                'Discard',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFFE53935),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+//
+// Edit mode: which order is being changed
+//
+class _EditBanner extends StatelessWidget {
+  final CartController controller;
+
+  const _EditBanner({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final s = controller.editSession!;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEEF0FF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFD5DAFB)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.edit_note_rounded, color: Color(0xFF3D4ED8)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Editing order ${s.orderNo}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1A1A2E),
+                  ),
+                ),
+                if (s.partyName.isNotEmpty)
+                  Text(
+                    s.partyName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 12, color: Color(0xFF5B6475)),
+                  ),
+              ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AddMoreButton extends StatelessWidget {
+  final CartController controller;
+
+  const _AddMoreButton({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: controller.tapOnAddMoreItems,
+      icon: const Icon(Icons.add_rounded, size: 20),
+      label: const Text('Add more items'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFF3D4ED8),
+        side: const BorderSide(color: Color(0xFF3D4ED8), width: 1.2),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -680,7 +810,7 @@ class _CartCard extends StatelessWidget {
 
                   // Price
                   Text(
-                    '\u20B9${item.total?.toInt()}',
+                    '\u20B9${(item.itemrate ?? 0).toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
@@ -931,7 +1061,7 @@ class _OrderSummary extends StatelessWidget {
           _summaryRow('Total', '\u20B9${total.toInt()}', bold: true),
           const SizedBox(height: 16),
 
-          // Place Order button
+          // Proceed to Checkout button
           SizedBox(
             width: double.infinity,
             height: 52,
@@ -945,7 +1075,7 @@ class _OrderSummary extends StatelessWidget {
                 elevation: 0,
               ),
               child: const Text(
-                'Place Order',
+                'Proceed to Checkout',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,

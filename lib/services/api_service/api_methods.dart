@@ -135,6 +135,10 @@ class ApiMethods {
   String removeFromCart       = 'removeitem/removecartitem';
   String removeItem           = 'removeitem/removecartitem';
   String placeOrder           = 'placeorder/orderentry';
+  // Edit a placed order: load it into the cart, then save the cart back.
+  // Both take a JSON body (not form fields).
+  String orderEditToCart      = 'orderedittocart';
+  String placeOrderEdit       = 'placeorderedit';
   String updateCart           = 'cardqtyupdate/productqtychange';
   String updateCartDecimalQty = 'cardqtyupdatedecimal/productqtychangedecimal';
   String cartCount            = 'cartcount/getcartcount';

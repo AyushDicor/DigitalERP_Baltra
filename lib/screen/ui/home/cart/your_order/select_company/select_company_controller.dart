@@ -21,6 +21,7 @@ class SelectCompanyController extends AppBaseController {
   PartyDropdownData? partyData;
 
   List<PartyDropdownData> companyList = [];
+  List<PartyDropdownData> _allCompanies = [];
 
   ExecutiveDropdownData? selectedDropdownValue;
 
@@ -57,17 +58,14 @@ class SelectCompanyController extends AppBaseController {
     }*/
   }
   void searchCompany(String value) {
-    if(value.isEmpty){
-      getPartyList();
-      update();
-    }else{
-      final suggestions = companyList.where((element) {
-        final productTitle = element.partyname!.toLowerCase();
-        final input = searchController.text.toLowerCase();
-        return productTitle.contains(input);
-      }).toList();
-      companyList = suggestions;
-      update(); }
+    // Filter from the full list so deleting characters widens the results.
+    final input = value.trim().toLowerCase();
+    companyList = input.isEmpty
+        ? List.of(_allCompanies)
+        : _allCompanies
+            .where((e) => (e.partyname ?? '').toLowerCase().contains(input))
+            .toList();
+    update();
   }
 
   void setDropdownValue(ExecutiveDropdownData value) {
@@ -92,10 +90,11 @@ class SelectCompanyController extends AppBaseController {
       body[RequestKeys.branchId] = _homeController.currentUserData?.branchId.toString() ?? '39';
       var res = await api.getPartyDropdownList(body);
       if (res.status == 200) {
-        companyList = res.data ?? [];
+        _allCompanies = res.data ?? [];
+        companyList = List.of(_allCompanies);
         if (companyList.length > 1) {
           isManager = true;
-        } else {
+        } else if (companyList.isNotEmpty) {
           partyData = companyList.first;
         }
         update();

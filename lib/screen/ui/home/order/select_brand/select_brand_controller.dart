@@ -2,7 +2,7 @@ import 'package:digitalerp/app_routes/app_routes.dart';
 import 'package:digitalerp/response/brand_list_data_response.dart';
 import 'package:digitalerp/screen/base/base_controller.dart';
 import 'package:digitalerp/screen/ui/home/home_controller.dart';
-import 'package:digitalerp/screen/ui/home/order/select_category/select_category_view.dart';
+import 'package:digitalerp/screen/ui/home/order/select_category/product_list/product_list_view.dart';
 import 'package:digitalerp/services/api_service/request_keys.dart';
 import 'package:digitalerp/utils/app_constant.dart';
 import 'package:digitalerp/utils/shared_pre.dart';
@@ -51,7 +51,8 @@ class SelectBrandController extends AppBaseController {
     brandName = brandListItem[index].brandname;
     SharedPre.setValue(SharedPre.selectedBrand, brandName);
 
-    Get.to(const SelectCategoryView(), arguments: brandId);
+    // Brand -> Product directly; categories are filter chips on the product screen.
+    Get.to(const ProductListView(), arguments: brandId);
 
     update();
   }

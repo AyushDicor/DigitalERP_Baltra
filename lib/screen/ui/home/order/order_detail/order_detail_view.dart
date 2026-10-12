@@ -425,13 +425,31 @@ class OrderDetailView extends StatelessWidget {
                     const SizedBox(height: 28),
 
                     //  Action buttons 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 12,
+                      runSpacing: 12,
                       children: [
+                        // Add / remove / change qty — Pending orders only.
+                        if (controller.canEditItems)
+                          Obx(() => controller.isLoadingEdit.value
+                              ? const SizedBox(
+                                  width: 52,
+                                  height: 52,
+                                  child: Center(
+                                      child: CircularProgressIndicator(
+                                          color: newBlueColor)))
+                              : _actionButton(
+                                  icon: Icons.edit_note_rounded,
+                                  label: 'Edit Items',
+                                  color: const Color(0xFF3D4ED8),
+                                  bg: const Color(0xFFEEF0FF),
+                                  onTap: () => controller.startEditItems(),
+                                )),
                         if (controller.orderController.isManager)
                           _actionButton(
-                            icon: Icons.edit_outlined,
-                            label: 'Edit',
+                            icon: Icons.flag_outlined,
+                            label: 'Status',
                             color: const Color(0xFFF39C12),
                             bg: const Color(0xFFFFF4E0),
                             onTap: () => Get.dialog(OrderDetailEditDialog())
@@ -439,8 +457,6 @@ class OrderDetailView extends StatelessWidget {
                                     const Duration(milliseconds: 200),
                                     controller.getOrderDetail)),
                           ),
-                        if (controller.orderController.isManager)
-                          const SizedBox(width: 16),
                         Obx(() => controller.isPressed.value
                             ? const SizedBox(
                                 width: 52,
@@ -458,6 +474,18 @@ class OrderDetailView extends StatelessWidget {
                               )),
                       ],
                     ),
+                    if (controller.orderDetailData != null &&
+                        !controller.canEditItems)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 14),
+                        child: Center(
+                          child: Text(
+                            'Only pending orders can be edited.',
+                            style: TextStyle(
+                                fontSize: 12, color: newTextSecondary),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

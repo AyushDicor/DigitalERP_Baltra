@@ -7,6 +7,7 @@ import 'package:digitalerp/screen/base/base_controller.dart';
 import 'package:digitalerp/screen/ui/home/home_controller.dart';
 import 'package:digitalerp/services/api_service/request_keys.dart';
 import 'package:digitalerp/utils/offline_cart_list.dart';
+import 'package:digitalerp/utils/order_edit_session.dart';
 import 'package:digitalerp/utils/shared_pre.dart';
 import 'package:digitalerp/utils/show_message.dart';
 import 'package:flutter/material.dart';
@@ -22,15 +23,74 @@ class CartController extends AppBaseController {
   List<GetCartListData> cartList = [];
   List<GetCartListData> cartDeletedListItem = [];
   int? flag;
-  late final  list ;
+  // Was `late final` and only assigned when the offline list was non-empty,
+  // so deleting an item threw LateInitializationError before the API call.
+  List<OfflineCart> list = [];
+
+  /// Set when the cart holds a placed order loaded for editing.
+  OrderEditSession? editSession;
+  bool get isEditing => editSession != null;
 
   init() async {
     // TODO: implement onInit
     var obj = SharedPre.getObjs(SharedPre.userData) ?? {};
     currentUserData = UserData.fromJson(obj);
-    getDetails();
+    reload();
     getOfflineList();
+  }
 
+  /// Re-reads the server cart. Also called by CartView when a second cart
+  /// screen is pushed while this controller is still alive — onInit doesn't
+  /// run again then, and the stale list missed items added in between.
+  void reload() {
+    editSession = OrderEditSession.current;
+    getDetails();
+  }
+
+  /// Goes to the normal product flow; items added there land in this cart.
+  Future<void> tapOnAddMoreItems() async {
+    await Get.toNamed(AppRoutes.selectBrand);
+    getDetails();
+  }
+
+  /// Leaves edit mode without saving: empties the cart (which only holds the
+  /// order's copied lines) and forgets the session. The order is untouched.
+  Future<void> tapOnDiscardEdit() async {
+    final ok = await Get.dialog<bool>(AlertDialog(
+      title: const Text('Discard changes?'),
+      content: Text(
+          'Order ${editSession?.orderNo ?? ''} will stay as it was. '
+          'Your cart will be cleared.'),
+      actions: [
+        TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Keep editing')),
+        TextButton(
+            onPressed: () => Get.back(result: true),
+            child: const Text('Discard')),
+      ],
+    ));
+    if (ok != true) return;
+
+    setBusy(true);
+    try {
+      for (final item in List.of(cartList)) {
+        await api.removeFromCart({
+          RequestKeys.userId: currentUserData?.userid?.toString() ?? '',
+          RequestKeys.compId: currentUserData?.compId?.toString() ?? '',
+          RequestKeys.id: item.id.toString(),
+        });
+      }
+      await OrderEditSession.clear();
+      await SharedPre.clear(SharedPre.offlineCartList);
+      editSession = null;
+      cartList = [];
+      list = [];
+      homeController.itemInCart.value = 0;
+    } finally {
+      setBusy(false);
+    }
+    Get.back();
   }
   @override
   void onInit() {
@@ -71,7 +131,9 @@ class CartController extends AppBaseController {
     var list1 = await SharedPre.getStringValue(SharedPre.offlineCartList);
     if(list1.isNotEmpty) {
       var obj1 = json.decode(list1);
-      list = obj1.map((model) => OfflineCart.fromJson(model)).toList();
+      list = (obj1 as List)
+          .map((model) => OfflineCart.fromJson(model))
+          .toList();
     }
   }
 
@@ -176,7 +238,10 @@ if(quantityTextController.text.isNotEmpty && double.parse(quantityTextController
       body[RequestKeys.userId] = currentUserData!.userid.toString();
       var res = await api.getCartList(body);
       if (res.status == 200) {
-        cartList = res.data ?? [];
+        // An empty cart comes back as one placeholder row with id 0.
+        cartList = (res.data ?? [])
+            .where((e) => (e.productid ?? 0) != 0)
+            .toList();
         cartListLength = cartList.length;
         SharedPre.setValue(SharedPre.cartListLength, cartListLength);
       } else {

@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:digitalerp/app_routes/app_routes.dart';
 import 'package:digitalerp/response/order_detail_response.dart';
 import 'package:digitalerp/response/party_balance_detail_response.dart';
 import 'package:digitalerp/screen/base/base_controller.dart';
 import 'package:digitalerp/screen/ui/home/home_controller.dart';
 import 'package:digitalerp/screen/ui/home/order/order_controller.dart';
 import 'package:digitalerp/services/api_service/request_keys.dart';
+import 'package:digitalerp/utils/order_edit_session.dart';
 import 'package:digitalerp/utils/show_message.dart';
+import 'package:flutter/material.dart' show AlertDialog, Text, TextButton;
 import 'package:dio/dio.dart';
 import 'package:external_path/external_path.dart';
 import 'package:flutter/foundation.dart';
@@ -133,6 +136,71 @@ class OrderDetailController extends AppBaseController {
       ShowMessage.showSnackBar('catch Server Res', '$e');
     } finally {
       setBusy(false);
+    }
+  }
+
+  /// Only Pending orders can have their items changed.
+  bool get canEditItems =>
+      (orderDetailData?.orderstatus ?? '').toLowerCase() == 'pending';
+
+  final isLoadingEdit = RxBool(false);
+
+  /// Loads this order into the cart (replacing whatever is there) and opens
+  /// the cart in edit mode. Saving happens at checkout via placeorderedit.
+  Future<void> startEditItems() async {
+    if (!canEditItems || isLoadingEdit.value) return;
+    final editing = OrderEditSession.current;
+    final hasOtherCart = homeController.itemInCart.value > 0 &&
+        editing?.orderId != orderId;
+    if (hasOtherCart) {
+      final ok = await Get.dialog<bool>(AlertDialog(
+        title: const Text('Replace cart?'),
+        content: Text(editing != null
+            ? 'You are already editing order ${editing.orderNo}. '
+                'Those unsaved changes will be discarded.'
+            : 'Your cart has items. They will be replaced by the items of '
+                'this order.'),
+        actions: [
+          TextButton(
+              onPressed: () => Get.back(result: false),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Get.back(result: true),
+              child: const Text('Continue')),
+        ],
+      ));
+      if (ok != true) return;
+    }
+
+    isLoadingEdit.value = true;
+    try {
+      final user = homeController.currentUserData;
+      var res = await api.orderEditToCart({
+        'orderid': int.tryParse(orderId ?? '') ?? orderId,
+        'userid': user?.userid,
+        'compid': user?.compId,
+        'branchid': user?.branchId,
+        'yearid': user?.yearId,
+      });
+      if (res.status == 200) {
+        await OrderEditSession(
+          orderId: orderId ?? '',
+          orderNo: orderDetailData?.orderno ?? '',
+          partyId: orderDetailData?.partyid?.toString() ?? '',
+          partyName: orderDetailData?.partyname ?? '',
+        ).save();
+        final count = res.data is Map ? res.data['count'] : null;
+        homeController.itemInCart.value =
+            int.tryParse('$count') ?? orderDetailData?.details?.length ?? 0;
+        await Get.toNamed(AppRoutes.cart);
+        getOrderDetail();
+      } else {
+        ShowMessage.showSnackBar('Edit Order', res.message.toString());
+      }
+    } catch (e) {
+      ShowMessage.showSnackBar('Edit Order', '$e');
+    } finally {
+      isLoadingEdit.value = false;
     }
   }
 

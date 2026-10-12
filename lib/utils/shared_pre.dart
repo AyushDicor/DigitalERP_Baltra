@@ -25,6 +25,8 @@ class SharedPre {
   static const  unApprovalCount = 'unApprovalCount';
   static const String currentBranchId = 'currentBranchId';        // ✅ Add this
   static const String currentBranchName = 'currentBranchName';
+  // Placed order currently loaded into the cart for editing (see OrderEditSession).
+  static const String editingOrder = 'editingOrder';
 
 
 

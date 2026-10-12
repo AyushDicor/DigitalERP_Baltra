@@ -11,15 +11,16 @@ import 'package:digitalerp/screen/ui/home/home_controller.dart';
 import 'package:digitalerp/screen/ui/home/order/order_controller.dart';
 import 'package:digitalerp/services/api_service/request_keys.dart';
 import 'package:digitalerp/utils/app_constant.dart';
+import 'package:digitalerp/utils/order_edit_session.dart';
 import 'package:digitalerp/utils/shared_pre.dart';
 import 'package:digitalerp/utils/show_message.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class YourOrderController extends AppBaseController {
   final CartController cartController = Get.find<CartController>();
   final HomeController homeController = Get.find<HomeController>();
+  // Read by the executive dropdown on the Select Company screen.
   final OrderController orderController = Get.find<OrderController>();
 
   final TextEditingController searchController = TextEditingController();
@@ -27,157 +28,167 @@ class YourOrderController extends AppBaseController {
   final FocusNode searchFocus = FocusNode();
 
   ExecutiveDropdownData? selectedDropdownValue;
-  final discountController = TextEditingController(text: 0.toString());
+  final discountController = TextEditingController(text: '0');
   final discountFocus = FocusNode();
 
-  final cashDiscountController = TextEditingController(text: 0.toString());
+  final cashDiscountController = TextEditingController(text: '0');
   final cashDiscountFocus = FocusNode();
 
   PartyDropdownData? selectCompany;
-  List <PartyDropdownData> partyList=[];
+  List<PartyDropdownData> partyList = [];
   bool? isCustomer;
   String? companyName;
   String? partyId;
 
-  double subTotal = 0.0;
-  double grandTotal = 0.0;
-  String discountedValue = '';
-  String cashDiscountedValue = '';
+  /// Set when checking out an existing order that was loaded for editing.
+  /// The party is then fixed to the order's party and saving calls
+  /// placeorderedit instead of orderentry.
+  OrderEditSession? editSession;
+  bool get isEditing => editSession != null;
+
   String? customer;
   var customer2;
   CustomerListData? customerdecodedList;
 
+  // ---------------------------------------------------------------- totals
+
+  /// Cart value before discounts, as computed by the server.
+  double get amount {
+    final rows = cartController.cartList;
+    if (rows.isEmpty) return 0.0;
+    final server = rows.first.subtotal ?? 0.0;
+    if (server > 0) return server;
+    return rows.fold<double>(0, (s, e) => s + (e.total ?? 0));
+  }
+
+  double get shipping => cartController.cartList.isEmpty
+      ? 0.0
+      : (cartController.cartList.first.shippingamount ?? 0.0);
+
+  double get discountPercent => _percent(discountController.text);
+  double get cashDiscountPercent => _percent(cashDiscountController.text);
+
+  double get discountValue => amount * discountPercent / 100;
+
+  /// Amount after the trade discount.
+  double get subTotal => amount - discountValue;
+
+  double get cashDiscountValue => subTotal * cashDiscountPercent / 100;
+
+  double get grandTotal => subTotal - cashDiscountValue;
+
+  double get totalQty => cartController.cartList
+      .fold<double>(0, (s, e) => s + (e.quantity ?? 0));
+
+  double _percent(String s) {
+    final v = double.tryParse(s.trim()) ?? 0;
+    return v.clamp(0, 99).toDouble();
+  }
+
   @override
   void onInit() async {
-    // TODO: implement onInit
-    getPartyDropdownList();
-    isCustomer = homeController.currentUserData?.usertype.toString() == 'Customer';
+    editSession = OrderEditSession.current;
+    isCustomer =
+        homeController.currentUserData?.usertype.toString() == 'Customer';
     companyName = homeController.currentUserData?.name.toString();
 
-    print("==>");
-
+    if (editSession != null) {
+      // Party can't change on an existing order.
+      selectCompany = PartyDropdownData(
+        partyid: int.tryParse(editSession!.partyId),
+        partyname: editSession!.partyName,
+      );
+    } else {
+      getPartyDropdownList();
+    }
 
     super.onInit();
   }
-
-
 
   void setDropdownValue(ExecutiveDropdownData value) {
     selectedDropdownValue = value;
     update();
   }
 
-  void discountCalculate(String value) {
-    String patttern = r'^[1-9]([0-9]{0,1})([.][0-9]{1,3})?$';
-    RegExp regExp = RegExp(patttern);
-    discountedValue = value;
-    if (value.isEmpty || !regExp.hasMatch(value)) {
-      subTotal = double.parse('${cartController.cartList.first.subtotal}');
-      grandTotal = subTotal;
-      update();
-    }
-    if (value == '-value') {
-      ShowMessage.showSnackBar('msgTitle', 'not  valid input');
-    }
-    int discountPercent = int.parse(value);
+  // Both fields only feed the getters above; the old versions threw a
+  // FormatException whenever a field was cleared.
+  void discountCalculate(String value) => update();
 
-    int discountableAmount = double.parse('${cartController.cartList.first.subtotal}').toInt();
-    subTotal = discountableAmount - (discountableAmount * discountPercent / 100);
-    grandTotal = subTotal;
-    update();
-  }
-
-  void cashDiscountCalculate(String value) {
-    cashDiscountedValue = value;
-    if (value.isEmpty) {
-      grandTotal = subTotal;
-      update();
-    }
-    int discountPercent = int.parse(value);
-    grandTotal = subTotal - (subTotal * discountPercent / 100);
-    update();
-  }
+  void cashDiscountCalculate(String value) => update();
 
   void tapOnSearch() {
+    if (isEditing) return;
     Get.toNamed(AppRoutes.selectCompany)?.then((value) => update());
   }
 
+  /// Fields shared by orderentry and placeorderedit. Note the server's
+  /// naming: discountamount carries the subtotal AFTER discount and cdamount
+  /// the grand total — kept exactly as the app has always sent them.
+  Map<String, String> _orderBody() {
+    final user = homeController.currentUserData!;
+    return {
+      RequestKeys.userId: user.userid.toString(),
+      RequestKeys.compId: user.compId.toString(),
+      RequestKeys.yearId: user.yearId.toString(),
+      RequestKeys.branchId: user.branchId.toString(),
+      RequestKeys.executiveId: selectedDropdownValue?.executiveId.toString() ??
+          user.accountCode?.toString() ??
+          '',
+      RequestKeys.partyId: selectCompany?.partyid?.toString() ?? '0',
+      RequestKeys.totalAmount: amount.toString(),
+      RequestKeys.shippingAmount: shipping.toString(),
+      RequestKeys.discountPercent: _fmtPercent(discountPercent),
+      RequestKeys.discountAmount: subTotal.toString(),
+      RequestKeys.cashDiscountPercent: _fmtPercent(cashDiscountPercent),
+      RequestKeys.cashDiscountAmount: grandTotal.toString(),
+      RequestKeys.grandTotal: grandTotal.toString(),
+    };
+  }
+
+  String _fmtPercent(double v) =>
+      v == v.roundToDouble() ? v.toInt().toString() : v.toString();
+
   Future<void> tapOnPlaceOrder() async {
-    print( "selectCompany${selectCompany}");
+    if (isBusy) return;
+    if (cartController.cartList.isEmpty) {
+      ShowMessage.showSnackBar('Order', 'Your cart is empty');
+      return;
+    }
+    final isCustomerUser = isCustomer ?? false;
+    if (!isEditing && !isCustomerUser && selectCompany == null) {
+      ShowMessage.showSnackBar('Order', AppString.pleaseSelectCompanyTxt);
+      return;
+    }
 
-    if (discountController.text.isEmpty) {
-      ShowMessage.showSnackBar('Server Res', 'please fill discount value');
-      discountFocus.requestFocus();
-    } else if (cashDiscountController.text.isEmpty) {
-      ShowMessage.showSnackBar('Server Res', 'please fill cash discount value');
-      cashDiscountFocus.requestFocus();
-    } else if (homeController.currentUserData?.usertype.toString() == 'Customer') {
-      {
-        setBusy(true);
-        try {
-          Map<String, String> body = {};
-          body[RequestKeys.userId] = homeController.currentUserData!.userid.toString();
-          body[RequestKeys.compId] = homeController.currentUserData!.compId.toString();
-          body[RequestKeys.yearId] = homeController.currentUserData!.yearId.toString();
-          body[RequestKeys.branchId] = homeController.currentUserData!.branchId.toString();
-          body[RequestKeys.executiveId] = selectedDropdownValue?.executiveId.toString() ??
-              homeController.currentUserData?.accountCode.toString() ?? "";
-          body[RequestKeys.partyId] = selectCompany?.partyid.toString() ?? '0';
-          body[RequestKeys.totalAmount] = cartController.cartList.first.subtotal.toString();
-          body[RequestKeys.shippingAmount] = cartController.cartList[0].shippingamount.toString();
-          body[RequestKeys.discountPercent] = discountedValue;
-          body[RequestKeys.discountAmount] = subTotal.toString();
-          body[RequestKeys.cashDiscountPercent] = cashDiscountedValue;
-          body[RequestKeys.cashDiscountAmount] = grandTotal.toString();
-          body[RequestKeys.grandTotal] = grandTotal.toString();
-
-
-          var res = await api.orderPlace(body);
-          if (res.status == 200) {
-            Get.offAllNamed(AppRoutes.orderPlaced);
-            homeController.itemInCart.value = 0;
-          } else {
-            ShowMessage.showSnackBar('Server Res', res.message.toString());
-          }
-        } catch (e) {
-          ShowMessage.showSnackBar('Server Res', '$e');
-        } finally {
-          setBusy(false);
+    setBusy(true);
+    try {
+      final body = _orderBody();
+      if (isEditing) {
+        final res = await api.placeOrderEdit({
+          'orderid': int.tryParse(editSession!.orderId) ?? editSession!.orderId,
+          ...body,
+        });
+        if (res.status == 200) {
+          await OrderEditSession.clear();
+          homeController.itemInCart.value = 0;
+          Get.offAllNamed(AppRoutes.orderPlaced, arguments: 'edited');
+        } else {
+          ShowMessage.showSnackBar(
+              'Update Order', res.message ?? 'Could not update the order');
         }
-      }
-    } else if (selectCompany == null) {
-      ShowMessage.showSnackBar('Server Res', AppString.pleaseSelectCompanyTxt);
-    } else {
-      setBusy(true);
-      try {
-        Map<String, String> body = {};
-        body[RequestKeys.userId] = homeController.currentUserData!.userid.toString();
-        body[RequestKeys.compId] = homeController.currentUserData!.compId.toString();
-        body[RequestKeys.yearId] = homeController.currentUserData!.yearId.toString();
-        body[RequestKeys.branchId] = homeController.currentUserData!.branchId.toString();
-        body[RequestKeys.executiveId] = selectedDropdownValue?.executiveId.toString() ??
-            homeController.currentUserData?.accountCode.toString() ??
-            "";
-        body[RequestKeys.partyId] = selectCompany?.partyid.toString() ?? '';
-        body[RequestKeys.totalAmount] = cartController.cartList.first.subtotal.toString();
-        body[RequestKeys.shippingAmount] = cartController.cartList[0].shippingamount.toString();
-        body[RequestKeys.discountPercent] = discountedValue;
-        body[RequestKeys.discountAmount] = subTotal.toString();
-        body[RequestKeys.cashDiscountPercent] = cashDiscountedValue;
-        body[RequestKeys.cashDiscountAmount] = grandTotal.toString();
-        body[RequestKeys.grandTotal] = grandTotal.toString();
-        var res = await api.orderPlace(body);
+      } else {
+        final res = await api.orderPlace(body);
         if (res.status == 200) {
           Get.offAllNamed(AppRoutes.orderPlaced);
           homeController.itemInCart.value = 0;
         } else {
           ShowMessage.showSnackBar('Server Res', res.message.toString());
         }
-      } catch (e) {
-        ShowMessage.showSnackBar('Server Res', '$e');
-      } finally {
-        setBusy(false);
       }
+    } catch (e) {
+      ShowMessage.showSnackBar('Server Res', '$e');
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -189,9 +200,10 @@ class YourOrderController extends AppBaseController {
       body[RequestKeys.branchId] = homeController.currentUserData?.branchId.toString() ?? '122';
       var res = await api.getPartyDropdownList(body);
       if (res.status == 200) {
+        // Previously also did partyList.addAll(res.data!) on the same list,
+        // doubling every party.
+        partyList = res.data ?? [];
         getCustomerData();
-        partyList = res.data??[];
-        partyList.addAll(res.data!);
         update();
       }
     } catch (e) {
@@ -201,53 +213,42 @@ class YourOrderController extends AppBaseController {
 
   @override
   void onClose() {
-    // TODO: implement onClose
     SharedPre.clear(SharedPre.selectedCustomer);
     SharedPre.clear(SharedPre.selectedCustomer2);
+    discountController.dispose();
+    cashDiscountController.dispose();
+    searchController.dispose();
     super.onClose();
   }
 
   void getCustomerData() async {
-    print("===>");
     customer = await SharedPre.getStringValue(SharedPre.selectedCustomer);
-    print("===>1");
-    print("account Code=>${homeController.currentUserData!.accountCode}");
-    print("party Id=>${customer}");
 
-    if (homeController.currentUserData?.usertype=="Customer" ?? false) {
+    if (homeController.currentUserData?.usertype == "Customer") {
       selectCompany = partyList.firstWhere(
-            (element) => element.partyid == homeController.currentUserData!.accountCode,
+        (element) =>
+            element.partyid == homeController.currentUserData!.accountCode,
         orElse: () => PartyDropdownData(),
       );
-      update();
-      print("selectCompany===> ${selectCompany?.partyid}");
-      print("===>2");
-      customerdecodedList = CustomerListData.fromJson(json.decode(customer!));
-
-
-      print("selectCompany===> ${selectCompany?.partyid}");
-
-      // Set the selected company
-      // selectCompany = selectParty;
+      if ((customer ?? '').isNotEmpty) {
+        try {
+          customerdecodedList =
+              CustomerListData.fromJson(json.decode(customer!));
+        } catch (_) {}
+      }
       update();
     } else {
-      // If the first customer data is not available, fetch another customer data
+      // Order started from a visit plan: pre-select that customer.
       customer2 = await SharedPre.getObjs(SharedPre.selectedCustomer2);
 
       if (customer2 != null) {
-        // Decode the JSON data into a VisitPlanDetailsDataList object
         var dataList = VisitPlanDetailsDataList.fromJson(customer2);
-
-        // Manually create the PartyDropdownData from the retrieved VisitPlanDetailsDataList
-        var selectParty = PartyDropdownData(
+        selectCompany = PartyDropdownData(
           partyid: dataList.partyid,
           partyname: dataList.customername,
         );
-
-        selectCompany = selectParty;
         update();
       }
     }
   }
-
 }

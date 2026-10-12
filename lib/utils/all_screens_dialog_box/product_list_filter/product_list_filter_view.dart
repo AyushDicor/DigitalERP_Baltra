@@ -119,11 +119,14 @@ class _BottomSheetState extends State<_BottomSheet> {
             ),
             const SizedBox(height: 24),
 
-            // Brand dropdown
-            const _SectionLabel(label: 'Brand'),
-            const SizedBox(height: 8),
-            _brandDropdown(controller),
-            const SizedBox(height: 20),
+            // Sub-category dropdown — only when a category is picked on the
+            // product screen (in "All" mode there is no sub-category list).
+            if (controller.dropdownList.isNotEmpty) ...[
+              const _SectionLabel(label: 'Sub Category'),
+              const SizedBox(height: 8),
+              _brandDropdown(controller),
+              const SizedBox(height: 20),
+            ],
 
             // Price Range
             const _SectionLabel(label: 'Price Range'),
@@ -212,7 +215,7 @@ class _BottomSheetState extends State<_BottomSheet> {
         dropdownMaxHeight: 200,
         isExpanded: true,
         hint: const Text(
-          'Select Brand',
+          'Select Sub Category',
           style: TextStyle(fontSize: 14, color: Color(0xFF9E9E9E)),
         ),
         value: controller.productListController.previewsSelectedValue,

@@ -66,7 +66,11 @@ class _OrderPlacedViewState extends State<OrderPlacedView> {
                       ),
                       SizedBox(height: Get.height * .02),
                       Text(
-                        'Your Order Placed Successfully',
+                        // 'edited' is passed when an existing order was saved
+                        // through placeorderedit instead of placed new.
+                        Get.arguments == 'edited'
+                            ? 'Your Order Updated Successfully'
+                            : 'Your Order Placed Successfully',
                         style: const TextStyle().medium,
                       ),
                       const SizedBox(height: 60)

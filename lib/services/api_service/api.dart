@@ -2431,6 +2431,45 @@ class Api {
     }
   }
 
+  /// Replaces the user's server cart with the items of a placed order.
+  /// Needs orderid + compid + branchid (+ userid, yearid). JSON body.
+  Future<CommonResponse> orderEditToCart(Map<String, dynamic> body) =>
+      _postOrderEditJson(_apiMethods.orderEditToCart, body);
+
+  /// Saves the current cart back over the order being edited. Takes the same
+  /// fields as [orderPlace] plus orderid. JSON body.
+  Future<CommonResponse> placeOrderEdit(Map<String, dynamic> body) =>
+      _postOrderEditJson(_apiMethods.placeOrderEdit, body);
+
+  Future<CommonResponse> _postOrderEditJson(
+      String method, Map<String, dynamic> body) async {
+    List<ConnectivityResult> connectivityResults =
+        await connectivity.checkConnectivity();
+
+    if (connectivityResults.contains(ConnectivityResult.wifi) ||
+        connectivityResults.contains(ConnectivityResult.mobile)) {
+      String res = await _apiClient.postMethodJson(
+        method: method,
+        body: json.encode(body),
+        header: {'Content-Type': 'application/json'},
+      );
+      if (res.isNotEmpty) {
+        try {
+          return commonResponseFromJson(res);
+        } catch (e) {
+          if (kDebugMode) {
+            print(e);
+          }
+          return CommonResponse(status: 500, message: 'Something went wrong');
+        }
+      } else {
+        return CommonResponse(status: 500, message: 'Something went wrong');
+      }
+    } else {
+      return CommonResponse(status: 500, message: 'No internet');
+    }
+  }
+
   Future<CartCountResponse> getCartCount(Map<String, String> body) async {
     List<ConnectivityResult> connectivityResults =
         await connectivity.checkConnectivity();

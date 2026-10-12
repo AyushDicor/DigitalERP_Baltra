@@ -1,122 +1,117 @@
-import 'package:digitalerp/response/get_executive_dropdown_response.dart';
+import 'package:digitalerp/response/get_cart_list_response.dart';
 import 'package:digitalerp/screen/ui/home/cart/your_order/your_order_controller.dart';
-import 'package:digitalerp/utils/app_assets.dart';
-import 'package:digitalerp/utils/app_constant_new.dart';
 import 'package:digitalerp/utils/app_network_image.dart';
-import 'package:digitalerp/utils/app_profile_image.dart';
-import 'package:digitalerp/utils/dottedline.dart';
-import 'package:digitalerp/utils/my_app_bar_new.dart';
-import 'package:digitalerp/utils/safeAreaWrapper.dart';
-import 'package:digitalerp/utils/utils.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
-import '../../../../base/base_controller.dart';
-
+/// Checkout: customer, items, discounts and the final Place / Update button.
+/// Same look as the Cart screen it is opened from.
 class YourOrderView extends StatelessWidget {
   const YourOrderView({Key? key}) : super(key: key);
 
-  // Local UI tokens (reuse app tokens where they exist).
-  static const _ink = Color(0xFF0F172A);
-  static const _fieldFill = Color(0xFFF4F5F7);
+  static const _bg = Color(0xFFF5F6FA);
+  static const _ink = Color(0xFF1A1A2E);
+  static const _muted = Color(0xFF6B7280);
+  static const _line = Color(0xFFEEEEEE);
+  static const _accent = Color(0xFF3D4ED8);
+  static const _accentSoft = Color(0xFFEEF0FF);
+  static const _green = Color(0xFF16A34A);
 
-  double _num(String? s) => double.tryParse(s ?? '') ?? 0.0;
+  static final _inr = NumberFormat.currency(
+      locale: 'en_IN', symbol: '₹', decimalDigits: 2);
+
+  static String _money(num v) => _inr.format(v);
+
+  static String _qty(num? v) {
+    final q = (v ?? 0).toDouble();
+    return q == q.roundToDouble() ? q.toInt().toString() : q.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<YourOrderController>(
       init: YourOrderController(),
-      builder: (controller) {
-        final isCustomer = controller.isCustomer ?? false;
-        return Scaffold(
-          resizeToAvoidBottomInset: false,
-          body: Stack(
+      builder: (c) => Scaffold(
+        backgroundColor: _bg,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          elevation: 0,
+          scrolledUnderElevation: 1,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                size: 20, color: _ink),
+            onPressed: () => Get.back(),
+          ),
+          titleSpacing: 0,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Background + app bar.
-              Positioned.fill(
-                child: Container(
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(AppAssets.dashboardBg),
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                  child: SafeArea(
-                    child: MyAppBar(
-                      title: 'Your Order',
-                      onBackTap: () => controller.backTap(),
-                    ),
-                  ),
+              Text(
+                c.isEditing ? 'Update Order' : 'Checkout',
+                style: const TextStyle(
+                    fontSize: 20, fontWeight: FontWeight.w700, color: _ink),
+              ),
+              if (c.isEditing)
+                Text(
+                  c.editSession!.orderNo,
+                  style: const TextStyle(fontSize: 12, color: _muted),
                 ),
-              ),
-
-              // Scrolling content.
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                top: Get.height * 0.135,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Customer / company selector.
-                      isCustomer
-                          ? _companyCard2(controller)
-                          : _searchField(controller),
-                      if (!isCustomer && controller.selectCompany != null) ...[
-                        const SizedBox(height: 6),
-                        _companyCard2(controller),
-                      ],
-                      const SizedBox(height: 18),
-
-                      // Products.
-                      _sectionTitle('Products'),
-                      _productList(controller),
-                      const SizedBox(height: 18),
-
-                      // Bill summary.
-                      _sectionTitle('Bill Summary'),
-                      _summaryCard(controller),
-
-                      const SizedBox(height: 90),
-                      if (Shared.keyboardIsVisible(context))
-                        const SizedBox(height: 170),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Sticky action bar.
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: _bottomBtn(controller),
-              ),
             ],
           ),
-        );
-      },
+        ),
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            children: [
+              _sectionTitle('Customer'),
+              _customerCard(c),
+              const SizedBox(height: 20),
+              _sectionTitle(
+                'Items (${c.cartController.cartList.length})',
+                trailing: TextButton(
+                  onPressed: () => Get.back(),
+                  style: TextButton.styleFrom(
+                    foregroundColor: _accent,
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 32),
+                  ),
+                  child: const Text('Edit items',
+                      style: TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600)),
+                ),
+              ),
+              _itemsCard(c),
+              const SizedBox(height: 20),
+              _sectionTitle('Bill Summary'),
+              _summaryCard(c),
+            ],
+          ),
+        ),
+        bottomNavigationBar: _bottomBar(c),
+      ),
     );
   }
 
-  // ------------------------------------------------------------ shared bits
+  // ---------------------------------------------------------------- shared
 
-  Widget _sectionTitle(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Text(
-          text,
-          style: const TextStyle().bold.copyWith(fontSize: 15, color: _ink),
+  Widget _sectionTitle(String text, {Widget? trailing}) => Padding(
+        padding: const EdgeInsets.only(left: 2, bottom: 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w700, color: _ink),
+              ),
+            ),
+            if (trailing != null) trailing,
+          ],
         ),
-      );
-
-  Widget _searchField(YourOrderController controller) => TextFormField(
-        readOnly: true,
-        onTap: () => controller.tapOnSearch(),
-        decoration: const InputDecoration()
-            .searchTxtFieldStyle(hint: 'Search Customer'),
       );
 
   Widget _card({required Widget child, EdgeInsets? padding}) => Container(
@@ -124,352 +119,367 @@ class YourOrderView extends StatelessWidget {
         padding: padding ?? const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: child,
       );
 
-  // -------------------------------------------------------------- products
+  // -------------------------------------------------------------- customer
 
-  Widget _productList(YourOrderController controller) {
-    final items = controller.cartController.cartList;
-    return ListView.builder(
-      shrinkWrap: true,
-      padding: EdgeInsets.zero,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: items.length,
-      itemBuilder: (context, index) => _productCard(controller, index),
+  Widget _customerCard(YourOrderController c) {
+    final isCustomer = c.isCustomer ?? false;
+    final name = isCustomer && !c.isEditing
+        ? (c.companyName ?? '')
+        : (c.selectCompany?.partyname ?? '');
+    final canPick = !c.isEditing && !isCustomer;
+    final empty = name.isEmpty;
+
+    return InkWell(
+      onTap: canPick ? c.tapOnSearch : null,
+      borderRadius: BorderRadius.circular(14),
+      child: _card(
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: const BoxDecoration(
+                  color: _accentSoft, shape: BoxShape.circle),
+              alignment: Alignment.center,
+              child: Icon(
+                empty ? Icons.person_search_rounded : Icons.storefront_rounded,
+                color: _accent,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    empty ? 'Select customer' : name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: empty ? _muted : _ink,
+                    ),
+                  ),
+                  if (c.isEditing)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 2),
+                      child: Text(
+                        'Customer can\'t be changed on an existing order',
+                        style: TextStyle(fontSize: 11, color: _muted),
+                      ),
+                    )
+                  else if (empty)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 2),
+                      child: Text(
+                        'Tap to choose who this order is for',
+                        style: TextStyle(fontSize: 11, color: _muted),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (canPick)
+              Text(
+                empty ? 'Select' : 'Change',
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w600, color: _accent),
+              )
+            else if (c.isEditing)
+              const Icon(Icons.lock_outline_rounded, size: 18, color: _muted),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _productCard(YourOrderController controller, int index) {
-    final item = controller.cartController.cartList[index];
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  // ----------------------------------------------------------------- items
+
+  Widget _itemsCard(YourOrderController c) {
+    final items = c.cartController.cartList;
+    return _card(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      child: Column(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: AppNetworkImage(
-              image: item.productimage ?? '',
-              fit: BoxFit.cover,
-              height: 66,
-              width: 66,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.productname ?? '',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle()
-                      .bold
-                      .copyWith(fontSize: 14, color: _ink),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _metric('Qty', item.quantity?.toString() ?? '0'),
-                    _metric('Unit', item.unit ?? '-'),
-                    _metric('Rate', item.itemrate?.toStringAsFixed(2) ?? '0',
-                        money: true),
-                    _metric('Amount', item.total?.toStringAsFixed(2) ?? '0',
-                        money: true),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0) const Divider(height: 1, color: _line),
+            _itemRow(items[i]),
+          ],
         ],
       ),
     );
   }
 
-  Widget _metric(String label, String value, {bool money = false}) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle()
-                .bold
-                .copyWith(fontSize: 11, color: medGreyColor),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            money ? '\u{20B9}$value' : value,
-            style: const TextStyle().bold.copyWith(fontSize: 13, color: _ink),
-          ),
-        ],
+  Widget _itemRow(GetCartListData item) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: AppNetworkImage(
+                image: item.productimage ?? '',
+                fit: BoxFit.cover,
+                height: 44,
+                width: 44,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.productname ?? '',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _ink,
+                        height: 1.3),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '${_qty(item.quantity)} ${item.unit ?? ''} × '
+                    '${_money(item.itemrate ?? 0)}',
+                    style: const TextStyle(fontSize: 12, color: _muted),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              _money(item.total ?? 0),
+              style: const TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w700, color: _ink),
+            ),
+          ],
+        ),
       );
 
   // --------------------------------------------------------------- summary
 
-  Widget _summaryCard(YourOrderController controller) {
-    final amount = controller.cartController.cartList.isNotEmpty
-        ? controller.cartController.cartList.first.subtotal?.toString()
-        : '0';
-    return _card(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: Column(
-        children: [
-          _amountRow('Amount', _num(amount)),
-          const SizedBox(height: 14),
-          _percentRow(
-            'Discount %',
-            controller.discountController,
-            controller.discountFocus,
-            controller.discountCalculate,
-          ),
-          const SizedBox(height: 14),
-          _amountRow('Subtotal', controller.subTotal),
-          const SizedBox(height: 14),
-          _percentRow(
-            'Cash Discount %',
-            controller.cashDiscountController,
-            controller.cashDiscountFocus,
-            controller.cashDiscountCalculate,
-          ),
-          const SizedBox(height: 16),
-          DottedLine(
-            color: medGreyColor,
-            width: double.maxFinite,
-            space: 3,
-            strokeWidth: 1,
-          ),
-          const SizedBox(height: 16),
-          _amountRow('Grand Total', controller.grandTotal, emphasize: true),
-        ],
-      ),
-    );
-  }
+  Widget _summaryCard(YourOrderController c) => _card(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+        child: Column(
+          children: [
+            _amountRow('Amount', _money(c.amount)),
+            const SizedBox(height: 12),
+            _percentRow(
+              'Discount',
+              c.discountController,
+              c.discountFocus,
+              c.discountCalculate,
+              off: c.discountValue,
+            ),
+            const SizedBox(height: 12),
+            _amountRow('Subtotal', _money(c.subTotal)),
+            const SizedBox(height: 12),
+            _percentRow(
+              'Cash Discount',
+              c.cashDiscountController,
+              c.cashDiscountFocus,
+              c.cashDiscountCalculate,
+              off: c.cashDiscountValue,
+            ),
+            if (c.shipping > 0) ...[
+              const SizedBox(height: 12),
+              _amountRow('Shipping', _money(c.shipping)),
+            ],
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 14),
+              child: Divider(height: 1, color: _line),
+            ),
+            Row(
+              children: [
+                const Expanded(
+                  child: Text('Grand Total',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: _ink)),
+                ),
+                Text(
+                  _money(c.grandTotal),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w800, color: _ink),
+                ),
+              ],
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  '${_qty(c.totalQty)} units in ${c.cartController.cartList.length} '
+                  '${c.cartController.cartList.length == 1 ? 'item' : 'items'}',
+                  style: const TextStyle(fontSize: 12, color: _muted),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
 
-  Widget _amountRow(String name, double amount, {bool emphasize = false}) =>
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _amountRow(String label, String value) => Row(
         children: [
-          Text(
-            name,
-            style: const TextStyle().bold.copyWith(
-                  fontSize: emphasize ? 16 : 14,
-                  color: emphasize ? _ink : medGreyColor,
-                ),
+          Expanded(
+            child: Text(label,
+                style: const TextStyle(fontSize: 14, color: _muted)),
           ),
-          Text(
-            '\u{20B9}${amount.toStringAsFixed(2)}',
-            style: const TextStyle().bold.copyWith(
-                  fontSize: emphasize ? 18 : 14,
-                  color: emphasize ? red2Color : _ink,
-                ),
-          ),
+          Text(value,
+              style: const TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.w600, color: _ink)),
         ],
       );
 
-  Widget _percentRow(String name, TextEditingController c, FocusNode f,
-          void Function(String) onChanged) =>
+  Widget _percentRow(String label, TextEditingController ctrl, FocusNode focus,
+          void Function(String) onChanged,
+          {required double off}) =>
       Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            name,
-            style: const TextStyle()
-                .bold
-                .copyWith(fontSize: 14, color: medGreyColor),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style: const TextStyle(fontSize: 14, color: _muted)),
+                if (off > 0)
+                  Text('− ${_money(off)}',
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: _green)),
+              ],
+            ),
           ),
           Container(
-            width: 96,
+            width: 84,
             height: 40,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
-              color: _fieldFill,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.black.withOpacity(0.06)),
+              color: _bg,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFE2E5EC)),
             ),
             child: Row(
               children: [
                 Expanded(
-                  child: TextFormField(
-                    controller: c,
-                    focusNode: f,
+                  child: TextField(
+                    controller: ctrl,
+                    focusNode: focus,
                     onChanged: onChanged,
+                    onTap: () => ctrl.selection = TextSelection(
+                        baseOffset: 0, extentOffset: ctrl.text.length),
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     maxLength: 2,
                     keyboardType: TextInputType.number,
-                    cursorColor: Colors.grey,
                     textAlign: TextAlign.center,
-                    textAlignVertical: TextAlignVertical.center,
                     decoration: const InputDecoration(
                       counterText: '',
                       isCollapsed: true,
                       border: InputBorder.none,
                       hintText: '0',
                     ),
-                    style: const TextStyle()
-                        .bold
-                        .copyWith(fontSize: 15, color: _ink),
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: _ink),
                   ),
                 ),
-                Text(
-                  '%',
-                  style: const TextStyle()
-                      .bold
-                      .copyWith(fontSize: 14, color: medGreyColor),
-                ),
+                const Text('%',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: _muted)),
               ],
             ),
           ),
         ],
-      );
-
-  // --------------------------------------------------------------- company
-
-  Widget _companyCard2(YourOrderController controller) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Company Name',
-            style: const TextStyle().bold.copyWith(fontSize: 14, color: _ink),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              gradient: orangeDropdownGr(.19),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
-              children: [
-                ProfileImageView(
-                  size: 40,
-                  imageUrl: controller.selectCompany?.partyid.toString() ?? '',
-                  borderSize: 2,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    (controller.isCustomer ?? false)
-                        ? (controller.companyName ?? '')
-                        : (controller.selectCompany?.partyname ?? ''),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle().bold.copyWith(color: _ink),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-
-  // Kept for the manager/executive flow — re-enable in build() when needed.
-  Widget _dropdown(YourOrderController controller) =>
-      DropdownButtonHideUnderline(
-        child: DropdownButton2<ExecutiveDropdownData>(
-          buttonHeight: 40,
-          buttonPadding: const EdgeInsets.symmetric(horizontal: 20),
-          dropdownDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: dropdownBoxColor,
-          ),
-          buttonDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            gradient: blueDropdownGr,
-          ),
-          isExpanded: true,
-          value: controller.selectedDropdownValue,
-          hint: Text(
-            'Select Executive name',
-            style: const TextStyle().normal.copyWith(fontSize: 14),
-            overflow: TextOverflow.ellipsis,
-          ),
-          icon: Image.asset(AppAssets.dropdownIcon, width: 15, height: 15),
-          items: controller.orderController.executiveList.map((items) {
-            return DropdownMenuItem(
-              value: items,
-              child: Text(items.executiveName.toString()),
-            );
-          }).toList(),
-          onChanged: (ExecutiveDropdownData? newValue) {
-            controller.setDropdownValue(newValue!);
-          },
-        ),
       );
 
   // ---------------------------------------------------------------- bottom
 
-  Widget _bottomBtn(YourOrderController controller) {
-    final fallback = controller.cartController.cartList.isNotEmpty
-        ? (controller.cartController.cartList.first.subtotal ?? 0).toDouble()
-        : 0.0;
-    final total =
-        controller.grandTotal == 0.0 ? fallback : controller.grandTotal;
-    return SafeAreaWrapper(
-      child: Container(
-        width: Get.width,
-        height: 64,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+  Widget _bottomBar(YourOrderController c) => Container(
         decoration: const BoxDecoration(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-         color: purpleColor,
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black12, blurRadius: 10, offset: Offset(0, -2)),
+          ],
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 16, 12),
+            child: Row(
               children: [
-                Text(
-                  'Payable',
-                  style: const TextStyle()
-                      .normal
-                      .copyWith(color: Colors.white70, fontSize: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Payable',
+                          style: TextStyle(fontSize: 12, color: _muted)),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _money(c.grandTotal),
+                          style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: _ink),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                Text(
-                  '\u{20B9}${total.toStringAsFixed(2)}',
-                  style: const TextStyle()
-                      .bold
-                      .copyWith(color: Colors.white, fontSize: 18),
+                SizedBox(
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: c.isBusy ? null : c.tapOnPlaceOrder,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _accent,
+                      disabledBackgroundColor: _accent.withValues(alpha: 0.6),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 26),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: c.isBusy
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2.4, color: Colors.white),
+                          )
+                        : Text(
+                            c.isEditing ? 'Update Order' : 'Place Order',
+                            style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white),
+                          ),
+                  ),
                 ),
               ],
             ),
-            MaterialButton(
-              onPressed: () => controller.tapOnPlaceOrder(),
-              shape: const StadiumBorder(),
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 32),
-              child: Text(
-                'Place order',
-                style: const TextStyle().bold.copyWith(color: red2Color),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
